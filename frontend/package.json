@@ -45,6 +45,7 @@
     "babel-loader": "^5.0.0",
     "babel-plugin-react-transform": "^1.1.0",
     "babel-runtime": "^5.8.20",
+    "bootstrap-sass": "^3.3.5",
     "chai-as-promised": "^5.1.0",
     "css-loader": "^0.21.0",
     "eslint": "^1.0.0",

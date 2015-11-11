@@ -33,6 +33,7 @@ config.set('vendor_dependencies', [
   'react',
   'react-redux',
   'react-router',
+  'react-bootstrap',
   'redux',
   'redux-router'
 ].filter(dep => {
