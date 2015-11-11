@@ -1,16 +1,7 @@
-hairpiece
-=====
+Mission
+=======
+Creating and promoting healthy and fullfilling workplaces.
 
-An OTP application
-
-Build
------
-
-    $ rebar3 compile
-
-ToDo
-----
-
-* Write Cowboy hello world
-* Get less vague about OTP
-* Query PostgreSQL
+How
+====
+By creating a one-on-one management tool.
