@@ -30,6 +30,7 @@ config.set('webpack_port',  process.env.PORT || 3000);
 // vendor bundle.
 config.set('vendor_dependencies', [
   'history',
+  'freezer-js',
   'react',
   'react-redux',
   'react-router',
