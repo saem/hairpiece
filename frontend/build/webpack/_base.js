@@ -44,7 +44,9 @@ const webpackConfig = {
           optional : ['runtime'],
           env      : {
             development : {
-              plugins : ['react-transform'],
+              plugins : [
+                'react-transform'
+              ],
               extra   : {
                 'react-transform' : {
                   transforms : [{

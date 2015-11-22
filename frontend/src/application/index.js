@@ -1,3 +1,5 @@
+/* @flow */
+
 import React from 'react';
 import { freezer } from './domain';
 import { Grid, Row, Col } from 'react-bootstrap';
@@ -37,10 +39,6 @@ export default class AppContainer extends React.Component {
 }
 
 class Application extends React.Component {
-  static PropTypes = {
-    state : React.PropTypes.object.isRequired
-  }
-  
   render () {
     const state = this.props.state;
 
@@ -58,6 +56,13 @@ class Application extends React.Component {
     );
   }
 }
+Application.propTypes = {
+  state : React.PropTypes.shape({
+    overview: React.PropTypes.object.isRequired,
+    detail: React.PropTypes.object,
+    settings: React.PropTypes.object.isRequired
+  }).isRequired
+};
 
 class UninitializedApplication extends React.Component {
   render () {
