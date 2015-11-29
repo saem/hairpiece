@@ -4,6 +4,7 @@ import React from 'react';
 import events from 'application/events';
 import UninitializedApplication from 'application/UninitializedApplication';
 import Application from 'application/Application';
+import 'styles/core.scss';
 
 export default class AppContainer extends React.Component {
   constructor () {

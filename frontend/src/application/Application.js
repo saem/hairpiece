@@ -1,7 +1,7 @@
 import React from 'react';
 import { Grid, Row, Col } from 'react-bootstrap';
-import { Overview } from './Overview';
-import { Detail } from './Detail';
+import { Overview } from 'application/Overview';
+import { Detail } from 'application/Detail';
 
 export default class Application extends React.Component {
   render () {

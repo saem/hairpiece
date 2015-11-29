@@ -3,7 +3,6 @@ import ReactDOM           from 'react-dom';
 import { default as App } from 'application';
 import state              from 'application/state';
 import persistence        from 'application/persistence';
-import 'styles/core.scss';
 
 const target = document.getElementById('root');
 const isHotLoadAndHaveData = module.hot && module.hot.data;
