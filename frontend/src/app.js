@@ -1,6 +1,8 @@
+/* @flow */
+
 import React              from 'react';
 import ReactDOM           from 'react-dom';
-import { default as App } from './application';
+import { default as App } from './AppContainer';
 import state              from './application/state';
 import persistence        from './application/persistence';
 import 'styles/core.scss';
@@ -25,8 +27,6 @@ ReactDOM.render((
   ), target);
 
 if (module.hot) {
-  console.log('Module is hot: app');
-  
   // we can safely accept ourselves, as we export nothing
   module.hot.accept();
   

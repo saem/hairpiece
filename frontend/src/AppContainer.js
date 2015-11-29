@@ -1,15 +1,15 @@
 /* @flow */
 
 import React from 'react';
-import events from './events';
-import UninitializedApplication from './UninitializedApplication';
-import Application from './Application';
+import events from './application/events';
+import UninitializedAppScreen from './screens/UninitializedAppScreen';
+import AppScreen from './screens/AppScreen';
 
 export default class AppContainer extends React.Component {
   constructor () {
     super();
   }
-  
+
   componentWillMount () {
     this.props.stateManager.get()
       .getListener()
@@ -17,11 +17,11 @@ export default class AppContainer extends React.Component {
   }
 
   render () {
-    const state = this.props.stateManager.get();
+    const state: Object = this.props.stateManager.get();
 
     return state.initialized ?
-      ( <Application state={state} /> ) :
-      ( <UninitializedApplication /> );
+      ( <AppScreen state={state} /> ) :
+      ( <UninitializedAppScreen /> );
   }
 
   componentDidMount () {
