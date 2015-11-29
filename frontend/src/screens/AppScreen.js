@@ -43,24 +43,28 @@ Detail.propTypes = {
 
 class Overview extends React.Component {
   render () {
-    const meetings = this.props.state.pastMeetings.data.map((m) => (
-        <h1 key={m.id}>{m.attributes.themes}</h1>
-      )
-    );
+    const people: {displayName: String} = this.props.state.people.map((p) => (
+      <h1 key={p.id}>{p.attributes.fullName}</h1>
+    ));
 
     return (
       <span className="overview">
-        <span>
-          <Button bsStyle="primary">Facilitate Meeting</Button>
-        </span>
-        <span className="pastMeetings">
-          {meetings}
+        <span className="people">
+          {people}
         </span>
       </span>
     );
   }
 }
 Overview.propTypes = {
-  state : React.PropTypes.object.isRequired,
+  state : React.PropTypes.shape({
+    people: React.PropTypes.arrayOf(
+      React.PropTypes.shape({
+        attributes: React.PropTypes.shape({
+          fullName: React.PropTypes.string.isRequired
+        }).isRequired
+      })
+    )
+  }).isRequired,
   settings: React.PropTypes.object.isRequired
 };
