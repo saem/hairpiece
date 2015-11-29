@@ -1,8 +1,9 @@
 import React              from 'react';
 import ReactDOM           from 'react-dom';
-import { default as App } from 'application';
-import state              from 'application/state';
-import persistence        from 'application/persistence';
+import { default as App } from './application';
+import state              from './application/state';
+import persistence        from './application/persistence';
+import 'styles/core.scss';
 
 const target = document.getElementById('root');
 const isHotLoadAndHaveData = module.hot && module.hot.data;
@@ -25,12 +26,13 @@ ReactDOM.render((
 
 if (module.hot) {
   console.log('Module is hot: app');
-  // we can safely accept ourselves, as we have no exports
+  
+  // we can safely accept ourselves, as we export nothing
   module.hot.accept();
-
+  
   // push the old state onto module.hot.data so we can make that initialState
   module.hot.dispose((data) => {
     console.log(data);
-    data = stateManager.get().toJs();
+    data = stateManager.get().toJs;
   });
 }

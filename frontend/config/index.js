@@ -32,11 +32,8 @@ config.set('vendor_dependencies', [
   'history',
   'freezer-js',
   'react',
-  'react-redux',
   'react-router',
   'react-bootstrap',
-  'redux',
-  'redux-router',
   'rx'
 ].filter(dep => {
   if (pkg.dependencies[dep]) return true;

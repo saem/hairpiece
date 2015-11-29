@@ -1,4 +1,4 @@
-import events from 'application/events';
+import events from './events';
 import Rx from 'rx';
 
 let persister;
@@ -6,11 +6,13 @@ let persister;
 export default (stateManager) => {
   const appEvent$ = new Rx.Subject();
 
-  let subscription = subscribe(stateManager, appEvent$, events);
+  var subscription = subscribe(stateManager, appEvent$, events);
 
   const resubscribe = (newEvents) => {
     subscription.dispose();
     subscription = subscribe(stateManager, appEvent$, newEvents);
+    
+    return { appEvent$, subscription, resubscribe };
   };
 
   persister = { appEvent$, subscription, resubscribe };
@@ -21,10 +23,10 @@ export default (stateManager) => {
 if (module.hot) {
   console.log("Module is hot: persistence");
   // accept itself
-  module.hot.accept('application/events', () => {
+  module.hot.accept('./events', () => {
     console.log("hot loading: persistence");
-    const newEvents = require('application/events');
-    subscription = persister.resubscribe(stateManager, appEvent$, newEvents);
+    const newEvents = require('./events');
+    persister = persister.resubscribe(newEvents);
   });
 }
 

@@ -22,7 +22,7 @@ const webpackConfig = {
   plugins : [
     new webpack.DefinePlugin(config.get('globals')),
     new webpack.optimize.OccurrenceOrderPlugin(),
-    new webpack.optimize.DedupePlugin(),
+//    new webpack.optimize.DedupePlugin(),
     new HtmlWebpackPlugin({
       template : paths.src('index.html'),
       hash     : true,

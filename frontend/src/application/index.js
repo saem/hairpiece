@@ -1,10 +1,9 @@
 /* @flow */
 
 import React from 'react';
-import events from 'application/events';
-import UninitializedApplication from 'application/UninitializedApplication';
-import Application from 'application/Application';
-import 'styles/core.scss';
+import events from './events';
+import UninitializedApplication from './UninitializedApplication';
+import Application from './Application';
 
 export default class AppContainer extends React.Component {
   constructor () {

@@ -1,8 +1,4 @@
 export default {
-  APPLICATION_INIT: 'application_init'
+  APPLICATION_INIT: 'application_init',
+  DUMMY: 'dummy'
 };
-
-if (module.hot) {
-  module.hot.accept();
-  console.log('Module is hot: events');
-}
