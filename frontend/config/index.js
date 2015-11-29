@@ -32,11 +32,8 @@ config.set('vendor_dependencies', [
   'history',
   'freezer-js',
   'react',
-  'react-redux',
   'react-router',
   'react-bootstrap',
-  'redux',
-  'redux-router',
   'rx'
 ].filter(dep => {
   if (pkg.dependencies[dep]) return true;
@@ -101,17 +98,8 @@ const paths = (() => {
 
 config.set('utils_paths', paths);
 config.set('utils_aliases', [
-  'actions',
-  'components',
-  'constants',
-  'containers',
-  'layouts',
-  'reducers',
-  'routes',
-  'services',
-  'styles',
-  'utils',
-  'views'
+  'application',
+  'styles'
 ].reduce((acc, dir) => ((acc[dir] = paths.src(dir)) && acc), {}));
 
 export default config;

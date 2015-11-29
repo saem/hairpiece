@@ -1,6 +1,7 @@
 import webpack           from 'webpack';
 import config            from '../../config';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import autoprefixer      from 'autoprefixer';
 
 const paths = config.get('utils_paths');
 
@@ -14,14 +15,14 @@ const webpackConfig = {
     vendor : config.get('vendor_dependencies')
   },
   output : {
-    filename   : '[name].[hash].js',
+    filename   : '[name].js',
     path       : paths.project(config.get('dir_dist')),
     publicPath : '/'
   },
   plugins : [
     new webpack.DefinePlugin(config.get('globals')),
     new webpack.optimize.OccurrenceOrderPlugin(),
-    new webpack.optimize.DedupePlugin(),
+//    new webpack.optimize.DedupePlugin(),
     new HtmlWebpackPlugin({
       template : paths.src('index.html'),
       hash     : true,
@@ -44,9 +45,7 @@ const webpackConfig = {
           optional : ['runtime'],
           env      : {
             development : {
-              plugins : [
-                'react-transform'
-              ],
+              plugins : ['react-transform'],
               extra   : {
                 'react-transform' : {
                   transforms : [{
@@ -64,7 +63,7 @@ const webpackConfig = {
         loaders : [
           'style-loader',
           'css-loader',
-          'autoprefixer?browsers=last 2 version',
+          'postcss-loader',
           'sass-loader'
         ]
       },
@@ -79,14 +78,15 @@ const webpackConfig = {
   },
   sassLoader : {
     includePaths : paths.src('styles')
-  }
+  },
+  postcss : [ autoprefixer({ browsers : ['last 2 versions'] }) ]
 };
 
 // NOTE: this is a temporary workaround. I don't know how to get Karma
 // to include the vendor bundle that webpack creates, so to get around that
 // we remove the bundle splitting when webpack is used with Karma.
 const commonChunkPlugin = new webpack.optimize.CommonsChunkPlugin(
-  'vendor', '[name].[hash].js'
+  'vendor', '[name].js'
 );
 commonChunkPlugin.__KARMA_IGNORE__ = true;
 webpackConfig.plugins.push(commonChunkPlugin);

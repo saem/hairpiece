@@ -15,7 +15,6 @@ function makeDefaultConfig () {
     frameworks : ['mocha', 'sinon-chai', 'chai-as-promised', 'chai'],
     preprocessors : {
       [KARMA_ENTRY_FILE] : ['webpack'],
-      [`${config.get('dir_src')}/**/*.js`] : ['webpack'],
       [`${config.get('dir_test')}/**/*.js`] : ['webpack']
     },
     reporters : ['spec'],
@@ -35,17 +34,7 @@ function makeDefaultConfig () {
     },
     coverageReporter : {
       reporters : config.get('coverage_reporters')
-    },
-    plugins : [
-      require('karma-webpack'),
-      require('karma-mocha'),
-      require('karma-chai'),
-      require('karma-chai-as-promised'),
-      require('karma-sinon-chai'),
-      require('karma-coverage'),
-      require('karma-phantomjs-launcher'),
-      require('karma-spec-reporter')
-    ]
+    }
   };
 
   if (config.get('coverage_enabled')) {
