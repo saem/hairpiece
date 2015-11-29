@@ -23,7 +23,7 @@
   "author": "David Zukowski <david@zuko.me> (http://zuko.me)",
   "license": "MIT",
   "dependencies": {
-    "babel": "^5.8.23",
+    "babel": "^5.8.34",
     "chalk": "^1.1.1",
     "dotenv": "^1.2.0",
     "freezer-js": "^0.9.3",
@@ -41,10 +41,10 @@
   },
   "devDependencies": {
     "autoprefixer": "^6.0.3",
-    "babel-eslint": "^4.1.1",
-    "babel-loader": "^5.0.0",
-    "babel-plugin-react-transform": "^1.1.0",
-    "babel-runtime": "^5.8.20",
+    "babel-eslint": "^4.1.6",
+    "babel-loader": "^5.3.3",
+    "babel-plugin-react-transform": "^1.1.1",
+    "babel-runtime": "^5.8.34",
     "bootstrap-sass": "^3.3.5",
     "chai-as-promised": "^5.1.0",
     "css-loader": "^0.23.0",

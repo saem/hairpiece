@@ -1,105 +1,61 @@
-/* @flow */
-
-import React from 'react';
-import { freezer } from './domain';
-import { Grid, Row, Col } from 'react-bootstrap';
-import { Overview } from './Overview';
-import { Detail } from './Detail';
+import events from 'application/events';
 import Rx from 'rx';
 
-const Events = {
-  APPLICATION_INIT: 'application_init'
+let persister;
+
+export default (stateManager) => {
+  const appEvent$ = new Rx.Subject();
+
+  let subscription = subscribe(stateManager, appEvent$, events);
+
+  const resubscribe = (newEvents) => {
+    subscription.dispose();
+    subscription = subscribe(stateManager, appEvent$, newEvents);
+  };
+
+  persister = { appEvent$, subscription, resubscribe };
+
+  return persister;
 };
 
-export { Events as Events };
-
-const applicationState = freezer;
-
-export default class AppContainer extends React.Component {
-  constructor () {
-    super();
-  }
-  
-  componentWillMount () {
-    applicationState.get().getListener().trigger(Events.APPLICATION_INIT);
-  }
-
-  render () {
-    const state = applicationState.get();
-
-    return state.initialized ?
-      ( <Application state={state} /> ) :
-      ( <UninitializedApplication /> );
-  }
-
-  componentDidMount () {
-    const me = this;
-    freezer.on('update', () => me.forceUpdate() );
-  }
+if (module.hot) {
+  console.log("Module is hot: persistence");
+  // accept itself
+  module.hot.accept('application/events', () => {
+    console.log("hot loading: persistence");
+    const newEvents = require('application/events');
+    subscription = persister.resubscribe(stateManager, appEvent$, newEvents);
+  });
 }
 
-class Application extends React.Component {
-  render () {
-    const state = this.props.state;
+const subscribe = (stateManager, appEvent$, events) => {
+  stateManager.get()
+    .getListener()
+    .on(events.APPLICATION_INIT, () => appEvent$.onNext(events.APPLICATION_INIT));
+  stateManager.get()
+    .getListener()
+    .on(events.APPLICATION_INIT, () => console.log("APPLICATION_INIT happened"));
 
-    return (
-      <Grid>
-        <Row className="show-grid">
-          <Col md={4}>
-            <Overview state={state.overview} settings={state.settings} />
-          </Col>
-          <Col md={8}>
-            <Detail state={state.detail} settings={state.settings} />
-          </Col>
-        </Row>
-      </Grid>
-    );
-  }
-}
-Application.propTypes = {
-  state : React.PropTypes.shape({
-    overview: React.PropTypes.object.isRequired,
-    detail: React.PropTypes.object,
-    settings: React.PropTypes.object.isRequired
-  }).isRequired
-};
-
-class UninitializedApplication extends React.Component {
-  render () {
-    return (
-      <Grid>
-        <Row className="show-grid">
-          <h1>Loading...</h1>
-        </Row>
-      </Grid>
-    );
-  }
-}
-
-const app$ = new Rx.Subject();
-
-applicationState.get().getListener()
-  .on(Events.APPLICATION_INIT, (e) => app$.onNext(Events.APPLICATION_INIT));
-
-app$.subscribe(
-  e => {
-    switch(e) {
-      case Events.APPLICATION_INIT:
-        // pretend data came back from the server
-        Rx.Observable.just(pastMeetingDataFixture)
-          .delay(Math.floor(Math.random() * 500) + 10)
-          .forEach(meetings => {
-            applicationState.get()
-              .set({
-                      overview: {
-                        pastMeetings: meetings
-                      },
-                      initialized: true
-                   });
-          });
+  return appEvent$.subscribe(
+    e => {
+      switch(e) {
+        case events.APPLICATION_INIT:
+          // pretend data came back from the server
+          Rx.Observable.just(pastMeetingDataFixture)
+            .delay(Math.floor(Math.random() * 500) + 10)
+            .forEach(meetings => {
+              stateManager.get()
+                .set({
+                        overview: {
+                          pastMeetings: meetings
+                        },
+                        initialized: true
+                     });
+            });
+      }
     }
-  }
-);
+  );
+};
 
 const pastMeetingDataFixture = {
   "links": {

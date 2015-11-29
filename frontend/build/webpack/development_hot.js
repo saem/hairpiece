@@ -18,10 +18,6 @@ webpackConfig.plugins.push(
 // HMR is not enabled there, and these transforms require it.
 webpackConfig.module.loaders = webpackConfig.module.loaders
   .map(loader => {
-    if (loader.loader != 'babel') {
-      return loader;
-    }
-  
     if (/js(?!on)/.test(loader.test)) {
       loader.query.env.development.extra['react-transform'].transforms.push({
         transform : 'react-transform-hmr',
