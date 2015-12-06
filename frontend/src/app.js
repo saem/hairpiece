@@ -4,7 +4,6 @@ import React              from 'react';
 import ReactDOM           from 'react-dom';
 import { default as App } from './AppContainer';
 import state              from './application/state';
-import persistence        from './application/persistence';
 import './styles/core.scss';
 
 const target = document.getElementById('root');
@@ -19,7 +18,6 @@ const initialState = module.hot && module.hot.data ?
     initialized: false
   };
 const stateManager = state(initialState);
-const persister = persistence(stateManager);
 
 ReactDOM.render((
     <App stateManager={stateManager} />

@@ -1,5 +1,39 @@
 import React from 'react';
 
+// These all map directly to domain concepts and their hierarchy
+
+// persistence / meeting | people | users
+
+domainOrServerData = {
+  meetings: [
+    { name: "awesome meeting" } // 2) Cool story, I'll try and save
+  ]
+}
+
+// goes back and forth
+
+// These all map directly to components and their hierarchy
+// ui / overview / meetings | people
+// ui / detail / meetings | people
+// ui / settings / user-profile
+
+uiData = {
+  overview: {
+    meetings: [
+      {
+        name: "awesome meeting" // 3) was updated because domainOrServerData adopted the new value 
+      }
+    ]
+  },
+  detail: {
+    meeting: {
+      name: "awesome meeting" // 1) click done/save -> State.trigger ("meeting:name-changed", { relevant data })
+    }
+  }
+}
+
+render (uiData) -> ReactComponents
+
 //Top level concerns
 // - analytics
 // - debugging
@@ -126,7 +160,7 @@ class App extends React.Component {
     get	upstream$: PropTypes.func
     get parent: PropTypes.string
   };
-  
+
   getChildContext() {
     return {
       upstream$: () => new Rx.Subject(),
@@ -140,7 +174,7 @@ class Overview extends React.Component {
     get	upstream$: PropTypes.func
     get parent: PropTypes.string
   };
-  
+
   getChildContext() {
     return {
       upstream$: () => this.context.upstream$,
@@ -154,7 +188,7 @@ class Detail extends React.Component {
     get	upstream$: PropTypes.func
     get parent: PropTypes.string
   };
-  
+
   getChildContext() {
     return {
       upstream$: () => this.context.upstream$,
@@ -168,7 +202,7 @@ class PastMeetings extends React.Component {
     get	upstream$: PropTypes.func
     get parent: PropTypes.string
   };
-  
+
   getChildContext() {
     return {
       upstream$: () => this.context.upstream$,
@@ -182,7 +216,7 @@ class PastMeeting extends React.Component {
     get	upstream$: PropTypes.func
     get parent: PropTypes.string
   };
-  
+
   getChildContext() {
     return {
       upstream$: () => this.context.upstream$,
@@ -196,7 +230,7 @@ class Overview extends React.Component {
     get	upstream$: PropTypes.func
     get parent: PropTypes.string
   };
-  
+
   getChildContext() {
     return {
       upstream$: () => this.context.upstream$,

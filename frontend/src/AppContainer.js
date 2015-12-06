@@ -2,8 +2,7 @@
 
 import React from 'react';
 import events from './application/events';
-import UninitializedAppScreen from './screens/UninitializedAppScreen';
-import AppScreen from './screens/AppScreen';
+import { MainScreen } from './screens';
 
 export default class AppContainer extends React.Component {
   constructor () {
@@ -19,9 +18,9 @@ export default class AppContainer extends React.Component {
   render () {
     const state: Object = this.props.stateManager.get();
 
-    return state.initialized ?
-      ( <AppScreen state={state} /> ) :
-      ( <UninitializedAppScreen /> );
+    return (
+      <MainScreen state={state} />
+    );
   }
 
   componentDidMount () {

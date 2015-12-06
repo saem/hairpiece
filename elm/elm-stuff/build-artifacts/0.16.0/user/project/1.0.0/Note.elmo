@@ -1,0 +1,16 @@
+Elm.Note = Elm.Note || {};
+Elm.Note.make = function (_elm) {
+   "use strict";
+   _elm.Note = _elm.Note || {};
+   if (_elm.Note.values) return _elm.Note.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var init = function (note) {    return note;};
+   return _elm.Note.values = {_op: _op,init: init};
+};
