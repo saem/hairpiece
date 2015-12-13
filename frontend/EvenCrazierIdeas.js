@@ -1,43 +1,75 @@
-class Signal { address (data) => { /* things changed */} }
-
-const buildReducer = (signal: Signal, actions: Object, reduce: Function) => {
-
+const Events = {
+  APPLICATION_INIT: 'application:init'
 };
 
-# Metric
-
-const instance = (label: String, signal: Signal) => {
-  return {
-    label: label,
-    possibleAnswers: possibleAnswers,
-    actionCallbacks: buildReducer(signal, actions, reduce);
-  };
-};
-
-const possibleAnswers = [ "Unanswered", "Better", "Same", "Worse" ]
-
-const actions = {
-  ANSWER: "answer"
-};
-
-const reduce = ( action: {name: String, data: {answer: String}},
-                 model: String ) => {
-  switch (action.name) {
-    case actions.ANSWER => action.data.answer
-  }
-};
-
-class Metric extends React.Component {
-  render () {
-    const actionCallbacks =
-    return (
-      <Select>
-        <Option />
-      </Select>
-    );
-  }
+class Feature {
+  build (state, clientLog, serverLog) { /* figure out return type */ }
 }
 
-export { instance as instance, Metric as Metric }
+const MeetingApplication = ({model}) => { /* react rendering stuff */ };
 
-# Metrics
+class MeetingApplication extends Feature {
+  build (state, clientLog, serverLog) {
+
+    // build is doing two (?) things, is this ok?
+
+    // rx subscriptions and side-effects?
+
+    state.on(Events.APPLICATION_INIT, e => {
+      serverLog.onNext({
+        this.props.clientLog.onNext({
+          type: events.Type.Http,
+          method: "GET",
+          url: "doesn't matter right now"
+        });
+      });
+    });
+
+    // return feature tree?
+
+    return [
+      MeetingFeature(state.meeting, clientLog, serverLog)
+    ];
+  }
+
+  renderer (model) { return MeetingApplication; }
+}
+
+const MeetingComponent = ({model}) => { /* react rendering stuff */ };
+
+class MeetingFeature extends Feature {
+  build (state, clientLog, serverLog) {
+    return [
+      MetricsFeature(state.metrics, clientLog, serverLog),
+      NotesFeature(state.notes, clientLog, serverLog)
+    ];
+  }
+
+  renderer (model) { return MeetingComponent; }
+}
+
+const MetricsComponent = ({model}) => {
+  const metrics = model.metrics.map(m => <Metric model={m}>);
+
+  return (
+    <Row>
+      {metrics}
+    </Row>
+  )
+}
+
+class MetricsFeature extends Feature {
+  build (state, clientLog, serverLog) {}
+
+  renderer (model) { return MetricsComponent; }
+}
+
+const NotesComponent = ({model}) => { /* react rendering stuff */ };
+
+const NotesFeature extends Feature {
+  build (state, clientLog, serverLog) {}
+
+  renderer (model) {
+    return NotesComponent;
+  }
+}

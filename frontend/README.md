@@ -32,4 +32,7 @@ feature(state, clientLog, serverLog)
 
 TODO
 ====
-* Everything
+* Explore ideas in EvenCrazierIdeas.js
+  * Specifically, see how it hooks up into the current application scaffold
+  * Figure out the type signature of the Feature::build method
+  * Separate build (feature hierarchy, and Rx stuff) into build and init?
