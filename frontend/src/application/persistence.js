@@ -1,40 +1,29 @@
+/** @flow */
+
 import events from './events';
-/*
- * @todo This should take and event, have the correct HTTP things happen, and
- *       then publish it somewhere the UI modules can subscribe to changes and
- *       remap those changes to what they care about.
- */
 
-let persister;
-
-export default (stateManager) => {
-  // subscriptions
-  stateManager.on(events.APPLICATION_INIT, function() {
-    setTimeout(
-      () => stateManager.get().set({rawData: landingDataFixture});
-  }, 500);
-
-  const resubscribe = (newEvents) => {
-    subscription.dispose();
-    subscription = subscribe(stateManager, appEvent$, newEvents);
-
-    return { appEvent$, subscription, resubscribe };
-  };
-
-  persister = { appEvent$, subscription, resubscribe };
-
-  return persister;
+// Where all the http side-effects take place
+const handle = (
+    event: {type: String, method: String, url: String},
+    serverLog: {onNext: Function}
+) => {
+  Rx.Observable.just(landingDataFixture)
+    .delay(Math.floor(Math.random() * 500) + 10)
+    .forEach(
+      fixture => {
+        serverLog.onNext({
+          type: events.Type.Http,
+          status: 200,
+          data: fixture
+        });
+      }
+    );
 };
 
-if (module.hot) {
-  // accept only events changes for now
-  module.hot.accept('./events', () => {
-    const newEvents = require('./events');
-    persister = persister.resubscribe(newEvents);
-  });
-}
-
-// This is what we should likely migrate towards
+export default (clientLog, serverLog) => {
+  clientLog.filter(e => { return e.type == events.Type.Http })
+    .subscribe(e => handle(e, serverLog));
+};
 
 const landingDataFixture = {
   "links":{

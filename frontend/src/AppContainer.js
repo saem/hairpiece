@@ -10,16 +10,20 @@ export default class AppContainer extends React.Component {
   }
 
   componentWillMount () {
-    this.props.stateManager.get()
-      .getListener()
-      .trigger(events.APPLICATION_INIT);
+    if ( !this.props.stateManager.get().initialized ) {
+      this.props.clientLog.onNext({
+        type: events.Type.Http,
+        method: "GET",
+        url: "doesn't matter right now"
+      });
+    }
   }
 
   render () {
-    const state: Object = this.props.stateManager.get();
-
     return (
-      <MainScreen state={state} />
+      <MainScreen state={this.props.stateManager.get()}
+           clientLog={this.props.clientLog}
+           serverLog={this.props.serverLog} />
     );
   }
 
@@ -29,5 +33,9 @@ export default class AppContainer extends React.Component {
   }
 }
 AppContainer.propTypes = {
-  stateManager: React.PropTypes.object.isRequired
+  stateManager: React.PropTypes.shape({
+    get: React.PropTypes.func.isRequired
+  }).isRequired,
+  clientLog: React.PropTypes.object.isRequired,
+  serverLog: React.PropTypes.object.isRequired
 };

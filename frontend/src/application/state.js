@@ -1,6 +1,6 @@
 import Freezer from 'freezer-js';
 
-export default (initialState) => {
+export default (initialState: Any) => {
   const freezer = new Freezer(initialState);
 
   return freezer;
