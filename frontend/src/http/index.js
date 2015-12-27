@@ -1,5 +1,3 @@
-/** @flow */
-
 import Kefir from 'kefir';
 
 const REQUEST  = 'request';

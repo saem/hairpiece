@@ -12,7 +12,7 @@ import './styles/core.scss';
 
 const initialState = module.hot && module.hot.data ?
   module.hot.data.state :
-  false;
+  null;
 let state = initState(initialState);
 
 const history = createBrowserHistory();
