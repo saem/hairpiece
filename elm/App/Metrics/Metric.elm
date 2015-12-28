@@ -1,4 +1,4 @@
-module Metric where
+module App.Metrics.Metric where
 
 import Html exposing (..)
 import Html.Events as HtmlEvent

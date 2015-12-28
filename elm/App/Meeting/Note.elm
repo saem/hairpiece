@@ -1,4 +1,4 @@
-module Note where
+module App.Meeting.Note where
 
 import Html exposing (textarea, Html)
 import Html.Attributes as A

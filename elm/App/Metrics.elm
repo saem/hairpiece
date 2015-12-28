@@ -1,8 +1,8 @@
-module Metrics where
+module App.Metrics where
 
 import Html exposing (..)
 import Html.Attributes exposing (id, class)
-import Metric as Metric
+import App.Metrics.Metric as Metric
 import List exposing (map, filter)
 
 -- Model

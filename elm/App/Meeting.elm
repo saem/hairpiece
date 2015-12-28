@@ -1,9 +1,14 @@
+module App.Meeting (
+  model,
+  view,
+  update
+  ) where
+
 import Html exposing (Html, node)
 import Html.Attributes as A
 import Bootstrap.Html exposing (..)
-import StartApp.Simple exposing (start)
-import Metrics as Metrics
-import Note as Note
+import App.Metrics as Metrics
+import App.Meeting.Note as Note
 
 -- type alias Talker = String
 -- type alias Listener = String
@@ -27,7 +32,7 @@ view: Signal.Address Action -> Model -> Html
 view address model =
   container_
     [ stylesheet "/vendor/bootstrap-3.3.6-dist/css/bootstrap.css"
-    , stylesheet "styles/style.css"
+    , stylesheet "/styles/style.css"
     , row_
       [ colMd_ 4 4 4 []
       , colMd_ 8 8 8
@@ -51,7 +56,3 @@ stylesheet href =
     [ A.rel "stylesheet"
     , A.href href
     ] []
-
-main : Signal Html
-main =
-    start { model = model, view = view, update = update }
