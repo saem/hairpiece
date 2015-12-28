@@ -5,8 +5,6 @@ import StartApp.Simple exposing (start)
 import Metrics as Metrics
 import Note as Note
 
--- View
-
 -- type alias Talker = String
 -- type alias Listener = String
 type alias Model = { metrics: Metrics.Model
@@ -21,18 +19,20 @@ model = { metrics = Metrics.model
 -- , listener: Listener.model
         }
 
-type SubAction = MetricsActions Metrics.Action | NoteActions Note.Action
-type Action = Modify SubAction
+type Action = MetricsActions Metrics.Action | NoteActions Note.Action
 
-view: Signal.Address Action -> Metrics.Model -> Html
+-- View
+
+view: Signal.Address Action -> Model -> Html
 view address model =
-  container_ [
-    stylesheet "/vendor/bootstrap-3.3.6-dist/css/bootstrap.css",
-    stylesheet "styles/style.css",
-    row_ [ colMd_ 4 4 4 [],
-      colMd_ 8 8 8 [
-        Metrics.view (address Signal.forwardTo MetricsActions) model
-        Note.view (address Signal.forwardTo NoteActions) model
+  container_
+    [ stylesheet "/vendor/bootstrap-3.3.6-dist/css/bootstrap.css"
+    , stylesheet "styles/style.css"
+    , row_
+      [ colMd_ 4 4 4 []
+      , colMd_ 8 8 8
+        [ Metrics.view (Signal.forwardTo address MetricsActions) model.metrics
+        , Note.view (Signal.forwardTo address NoteActions) model.note
       ]
     ]
   ]
@@ -40,10 +40,10 @@ view address model =
 update: Action -> Model -> Model
 update action model =
   case action of
-    Modify MetricsActions act ->
-      Metrics.update act Metric.model
-    Modify NoteActions act ->
-      Note.update act Note.model
+    MetricsActions act ->
+      { model | metrics = Metrics.update act Metrics.model }
+    NoteActions act ->
+      { model | note = Note.update act Note.model }
 
 stylesheet : String -> Html
 stylesheet href =
