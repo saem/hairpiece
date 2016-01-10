@@ -24,6 +24,11 @@ const {View, intents} = AppContainer(stateManager);
 
 ReactDOM.render((<View history={history} />), target);
 
+if ( !module.hot || (module.hot && !module.hot.data) ) {
+  console.log('app.js intents.init_application called');
+  intents.init_application();
+}
+
 // we can safely accept ourselves, as we export nothing
 module.hot && module.hot.accept() &&
 
@@ -33,3 +38,9 @@ module.hot.dispose((data) => {
 });
 
 // @todo use GET to fetch state from the server when the app init
+
+// App starts in app.js (this file)
+// app.js knows the first time it starts (because hot module reload business)
+// app.js -> * init_application
+  // init_application -> first http request to get API data
+    // API data: { current_user, refs, recent_meetings, current_metrics }

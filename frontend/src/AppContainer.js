@@ -3,6 +3,7 @@
 import React from 'react';
 import { Router, Route, IndexRoute } from 'react-router';
 import Freezer  from 'freezer-js';
+import { initApi } from './http';
 import {
   Component as App,
   initState as appState
@@ -21,13 +22,13 @@ import {
 } from './application/meeting';
 
 export const Component = (stateManager: StateManager): { View: Function, intents: any} => {
-  const state = stateManager.get().ui;
-  const { View: AppView,      intents: appIntents      } = App(state.app);
-  const { View: SettingsView, intents: settingsIntents } = Settings(state.settings);
-  const { View: HomeView,     intents: homeIntents     } = Home(state.home);
-  const { View: MeetingView,  intents: meetingIntents  } = Meeting(state.meeting);
+  const state = stateManager.get();
+  const uiState = state.ui;
+  const { View: AppView,      intents: appIntents      } = App(uiState.app);
+  const { View: SettingsView, intents: settingsIntents } = Settings(uiState.settings);
+  const { View: HomeView,     intents: homeIntents     } = Home(uiState.home);
+  const { View: MeetingView,  intents: meetingIntents  } = Meeting(uiState.meeting);
 
-  console.log('here');
   // httpObservable = giveToHttper(Kefir.merge([appIntents[AppAction.Start], ...]));
   // appObserveHttp(httpObservable);
   // settingsObserveHttp(httpObservable);
@@ -43,7 +44,11 @@ export const Component = (stateManager: StateManager): { View: Function, intents
           </Route>
         </Router>
       ),
-    intents: {}
+    intents: {
+      init_application: () => initApi().onValue(v => {
+        state.api.set({ initialized: true })
+      })
+    }
   };
 };
 
@@ -53,6 +58,9 @@ export const initStateManager = (initialState: ?Object): StateManager =>
   new Freezer(initialState || defaultState);
 
 export const defaultState: Object = {
+  api: {
+    initialized: false
+  },
   ui: {
     app: appState(),
     settings: settingsState(),
