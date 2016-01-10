@@ -1,25 +1,26 @@
 /* @flow */
 
-import React                from 'react';
-import ReactDOM             from 'react-dom';
+import React    from 'react';
+import ReactDOM from 'react-dom';
 import {
   Component as AppContainer,
-  initState
+  initStateManager,
+  defaultState
 } from './AppContainer';
-import Kefir                from 'kefir';
+
 import createBrowserHistory from 'history/lib/createBrowserHistory';
 import './styles/core.scss';
 
 const initialState = module.hot && module.hot.data ?
   module.hot.data.state :
-  null;
-let state = initState(initialState);
+  defaultState;
+const stateManager = initStateManager(initialState);
 
 const history = createBrowserHistory();
 
 const target = document.getElementById('root');
 
-const {View, intents} = AppContainer(state);
+const {View, intents} = AppContainer(stateManager);
 
 ReactDOM.render((<View history={history} />), target);
 
@@ -28,7 +29,7 @@ module.hot && module.hot.accept() &&
 
 // push the old state onto module.hot.data so we can make that initialState
 module.hot.dispose((data) => {
-  data.state = state;
+  data.state = stateManager.get().toJS();
 });
 
 // @todo use GET to fetch state from the server when the app init

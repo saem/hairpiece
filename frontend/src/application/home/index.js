@@ -1,16 +1,14 @@
 /** @flow */
 
 import React from 'react';
-import Freezer from 'freezer-js';
-import Kefir from 'kefir';
 import { Row, Col } from 'react-bootstrap';
 
-export const Component = (stateManager: Freezer): { View: Function, intents: any} => ({
+export const Component = (state: Ojbect): { View: Function, intents: any} => ({
   View: (props) => (
     <h1>Message of the Day</h1>
   ),
   intents: {}
 });
 
-export const stateManager = (initialState: any) =>
-  new Freezer(initialState || {});
+export const initState = (initialState: any) =>
+  initialState || {};

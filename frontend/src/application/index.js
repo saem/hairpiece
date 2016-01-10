@@ -1,12 +1,10 @@
 /** @flow */
 
 import React from 'react';
-import Freezer from 'freezer-js';
-import Kefir from 'kefir';
 import { Grid, Input, Row, Col } from 'react-bootstrap';
 import { Sidebar } from './Sidebar';
 
-export const Component = (stateManager: Freezer): { View: Function, intents: any} =>
+export const Component = (state: Object): { View: Function, intents: any} =>
   ({
     View: (props) => (
       <Grid>
@@ -19,19 +17,12 @@ export const Component = (stateManager: Freezer): { View: Function, intents: any
           </Col>
         </Row>
       </Grid>
-
     ),
-    intents: {
-      [Actions.start]: Kefir.constant({
-            action: Actions.start,
-            payload: { state: stateManager.get() }
-          })
-          .filter(intent => !intent.payload.state.initialized)
-    }
+    intents: {}
   });
 
-export const stateManager = (initialState: any) =>
-  new Freezer(initialState || defaultState);
+export const initState = (initialState: any) =>
+  initialState || defaultState;
 
 const Actions = {
   start:  'application_start'
@@ -59,7 +50,7 @@ const defaultState = {
     ""
   },
   "related": {
-  
+
   }
 }
 */

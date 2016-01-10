@@ -1,15 +1,13 @@
 /** @flow */
 
 import React from 'react';
-import Freezer from 'freezer-js';
-import Kefir from 'kefir';
 import { Input } from 'react-bootstrap';
 
-export const Component = (stateManager: Freezer): { View: Function, intents: any} => ({
+export const Component = (state: Ojbect): { View: Function, intents: any} => ({
   View: (props) => (
     <span>
       <h1>New Meeting</h1>
-      <Metrics metrics={stateManager.get()}/>
+      <Metrics metrics={state}/>
     </span>),
   intents: {}
 });
@@ -29,18 +27,18 @@ const defaultState = {
   ]
 };
 
-export const stateManager = (initialState: any) =>
-  new Freezer(initialState || defaultState);
+export const initState = (initialState: any) =>
+  initialState || defaultState;
 
-  const Metrics = (props) => {
-    const metrics = props.metrics;
-    const metricComponents = metrics.data
-      .map(m => (
-          <Metric key={m.name} metric={m} options={metrics.metricOptions} />
-        )
-      );
-    return (<form>{metricComponents}</form>);
-  };
+const Metrics = (props) => {
+  const metrics = props.metrics;
+  const metricComponents = metrics.data
+    .map(m => (
+        <Metric key={m.name} metric={m} options={metrics.metricOptions} />
+      )
+    );
+  return (<form>{metricComponents}</form>);
+};
 
 const Metric = (props) => {
   const metric = props.metric;

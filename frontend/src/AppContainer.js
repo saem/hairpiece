@@ -2,30 +2,32 @@
 
 import React from 'react';
 import { Router, Route, IndexRoute } from 'react-router';
-import Kefir from 'kefir';
+import Freezer  from 'freezer-js';
 import {
   Component as App,
-  stateManager as appStateManager
+  initState as appState
 } from './application';
 import {
   Component as Settings,
-  stateManager as settingsStateManager
+  initState as settingsState
 } from './application/settings';
 import {
   Component as Home,
-  stateManager as homeStateManager
+  initState as homeState
 } from './application/home';
 import {
   Component as Meeting,
-  stateManager as meetingStateManager
+  initState as meetingState
 } from './application/meeting';
 
-export const Component = (stateManagers: StateManagers): { View: Function, intents: any} => {
-  const { View: AppView,      intents: appIntents      } = App(stateManagers.app);
-  const { View: SettingsView, intents: settingsIntents } = Settings(stateManagers.settings);
-  const { View: HomeView,     intents: homeIntents     } = Home(stateManagers.home);
-  const { View: MeetingView,  intents: meetingIntents  } = Meeting(stateManagers.meeting);
+export const Component = (stateManager: StateManager): { View: Function, intents: any} => {
+  const state = stateManager.get().ui;
+  const { View: AppView,      intents: appIntents      } = App(state.app);
+  const { View: SettingsView, intents: settingsIntents } = Settings(state.settings);
+  const { View: HomeView,     intents: homeIntents     } = Home(state.home);
+  const { View: MeetingView,  intents: meetingIntents  } = Meeting(state.meeting);
 
+  console.log('here');
   // httpObservable = giveToHttper(Kefir.merge([appIntents[AppAction.Start], ...]));
   // appObserveHttp(httpObservable);
   // settingsObserveHttp(httpObservable);
@@ -45,14 +47,16 @@ export const Component = (stateManagers: StateManagers): { View: Function, inten
   };
 };
 
-type StateManagers = { app: Freezer };
+type StateManager = Freezer;
 
-export const initState = (initialStateManagers: ?StateManagers): StateManagers =>
-  initialStateManagers || defaultStateManagers;
+export const initStateManager = (initialState: ?Object): StateManager =>
+  new Freezer(initialState || defaultState);
 
-const defaultStateManagers: StateManagers = {
-  app: appStateManager(),
-  settings: settingsStateManager(),
-  home: homeStateManager(),
-  meeting: meetingStateManager()
+export const defaultState: Object = {
+  ui: {
+    app: appState(),
+    settings: settingsState(),
+    home: homeState(),
+    meeting: meetingState()
+  }
 };
