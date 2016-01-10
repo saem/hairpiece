@@ -46,7 +46,7 @@ export const Component = (stateManager: StateManager): { View: Function, intents
       ),
     intents: {
       init_application: () => initApi().onValue(v => {
-        state.api.set({ initialized: true })
+        state.api.set({base: v.links})
       })
     }
   };
@@ -58,9 +58,7 @@ export const initStateManager = (initialState: ?Object): StateManager =>
   new Freezer(initialState || defaultState);
 
 export const defaultState: Object = {
-  api: {
-    initialized: false
-  },
+  api: {},
   ui: {
     app: appState(),
     settings: settingsState(),

@@ -24,8 +24,9 @@ const {View, intents} = AppContainer(stateManager);
 
 ReactDOM.render((<View history={history} />), target);
 
+stateManager.on('update', (a, b) => console.log(a,b));
+
 if ( !module.hot || (module.hot && !module.hot.data) ) {
-  console.log('app.js intents.init_application called');
   intents.init_application();
 }
 
