@@ -53,3 +53,9 @@ module.hot && module.hot.accept() &&
 module.hot.dispose((data) => {
   data.state = {};
 });
+
+// todo list:
+// - more clean-up of where state (code and data) is created
+// - testing
+// - more UI features
+// - add in persistence via HTTP
