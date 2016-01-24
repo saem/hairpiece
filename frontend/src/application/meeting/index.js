@@ -3,14 +3,13 @@
 import React from 'react';
 import { Input } from 'react-bootstrap';
 
-export const Component = (state: Ojbect): { View: Function, intents: any} => ({
-  View: (props) => (
+export const Component = (state: Ojbect): Function => (
+  props => (
     <span>
       <h1>New Meeting</h1>
       <Metrics metrics={state}/>
-    </span>),
-  intents: {}
-});
+    </span>)
+);
 
 const defaultState = {
   metricOptions: [

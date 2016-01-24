@@ -1,9 +1,12 @@
 /* @flow */
 
 import React from 'react';
-import { Router, Route, IndexRoute } from 'react-router';
+import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import Freezer  from 'freezer-js';
 import { initApi } from './http';
+import {
+  Component as LoadingView
+} from './application/loading';
 import {
   Component as App,
   initState as appState
@@ -21,35 +24,49 @@ import {
   initState as meetingState
 } from './application/meeting';
 
-export const Component = (stateManager: StateManager): { View: Function, intents: any} => {
-  const state = stateManager.get();
-  const uiState = state.ui;
-  const { View: AppView,      intents: appIntents      } = App(uiState.app);
-  const { View: SettingsView, intents: settingsIntents } = Settings(uiState.settings);
-  const { View: HomeView,     intents: homeIntents     } = Home(uiState.home);
-  const { View: MeetingView,  intents: meetingIntents  } = Meeting(uiState.meeting);
+export class AppContainer extends React.Component {
+  render () {
+    const props = this.props;
+    const state = props.stateManager.get();
 
-  // httpObservable = giveToHttper(Kefir.merge([appIntents[AppAction.Start], ...]));
-  // appObserveHttp(httpObservable);
-  // settingsObserveHttp(httpObservable);
-  // homeObserveHttp(httpObservable);
+    // figure out what to render based on that
 
-  return {
-    View: (props): any => (
-        <Router history={props.history}>
+    const uiState = state.ui;
+    const AppView      = App(uiState.app);
+    const SettingsView = Settings(uiState.settings);
+    const HomeView     = Home(uiState.home);
+    const MeetingView  = Meeting(uiState.meeting);
+
+    return (
+        <Router history={browserHistory}>
           <Route path="/" component={AppView}>
             <IndexRoute component={HomeView} />
             <Route path="settings" component={SettingsView} />
             <Route path="meetings" component={MeetingView} />
           </Route>
         </Router>
+      );
+  }
+
+  componentDidMount () {
+    const me = this;
+    //this.props.stateManager.on('update', function() { me.forceUpdate() });
+  }
+}
+
+export const Component = (stateManager: StateManager): { View: Function } => {
+  const state = stateManager.get();
+
+  if (!state.api) {
+    return {
+      View: (props): any => (
+        <Router history={props.history}>
+          <Route path="/" component={LoadingView} />
+        </Router>
       ),
-    intents: {
-      init_application: () => initApi().onValue(v => {
-        state.api.set({base: v.links})
-      })
-    }
-  };
+      intents: {}
+    };
+  }
 };
 
 type StateManager = Freezer;
@@ -58,7 +75,6 @@ export const initStateManager = (initialState: ?Object): StateManager =>
   new Freezer(initialState || defaultState);
 
 export const defaultState: Object = {
-  api: {},
   ui: {
     app: appState(),
     settings: settingsState(),

@@ -4,9 +4,8 @@ import React from 'react';
 import { Grid, Input, Row, Col } from 'react-bootstrap';
 import { Sidebar } from './Sidebar';
 
-export const Component = (state: Object): { View: Function, intents: any} =>
-  ({
-    View: (props) => (
+export const Component = (state: Object): Function =>
+  props => (
       <Grid>
         <Row className="show-grid">
           <Col md={4} >
@@ -17,9 +16,7 @@ export const Component = (state: Object): { View: Function, intents: any} =>
           </Col>
         </Row>
       </Grid>
-    ),
-    intents: {}
-  });
+    );
 
 export const initState = (initialState: any) =>
   initialState || defaultState;
