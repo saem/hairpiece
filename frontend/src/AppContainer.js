@@ -1,84 +1,99 @@
 /* @flow */
 
 import React from 'react';
-import { Router, Route, IndexRoute, browserHistory } from 'react-router';
-import Freezer  from 'freezer-js';
-import { initApi } from './http';
+import _ from 'lodash';
 import {
-  Component as LoadingView
-} from './application/loading';
-import {
-  Component as App,
-  initState as appState
-} from './application';
-import {
-  Component as Settings,
-  initState as settingsState
-} from './application/settings';
-import {
-  Component as Home,
-  initState as homeState
-} from './application/home';
-import {
-  Component as Meeting,
-  initState as meetingState
-} from './application/meeting';
+  Grid, Row, Col
+  , ButtonGroup, Button
+  , Input
+  , ListGroup, ListGroupItem
+  , Glyphicon
+} from 'react-bootstrap';
 
-export class AppContainer extends React.Component {
-  render () {
-    const props = this.props;
-    const state = props.stateManager.get();
+const createAction = (name, optionalArgs) => {
+  const args = optionalArgs || {};
 
-    // figure out what to render based on that
-
-    const uiState = state.ui;
-    const AppView      = App(uiState.app);
-    const SettingsView = Settings(uiState.settings);
-    const HomeView     = Home(uiState.home);
-    const MeetingView  = Meeting(uiState.meeting);
-
-    return (
-        <Router history={browserHistory}>
-          <Route path="/" component={AppView}>
-            <IndexRoute component={HomeView} />
-            <Route path="settings" component={SettingsView} />
-            <Route path="meetings" component={MeetingView} />
-          </Route>
-        </Router>
-      );
-  }
-
-  componentDidMount () {
-    const me = this;
-    //this.props.stateManager.on('update', function() { me.forceUpdate() });
-  }
+  return _.merge({ actionType: name }, args);
 }
 
-export const Component = (stateManager: StateManager): { View: Function } => {
-  const state = stateManager.get();
-
-  if (!state.api) {
-    return {
-      View: (props): any => (
-        <Router history={props.history}>
-          <Route path="/" component={LoadingView} />
-        </Router>
-      ),
-      intents: {}
-    };
-  }
+export const AppContainer = (props) => {
+  return (
+    <Grid>
+      <Row className="show-grid">
+        <Col md={8} mdOffset={2} >
+          <Row>
+            <HomeControls home={props.appData} dispatchFactory={props.dispatchFactory} />
+          </Row>
+          <Row>
+            <MyMeetings meetings={props.appData.meetings} dispatchFactory={props.dispatchFactory} />
+          </Row>
+        </Col>
+      </Row>
+    </Grid>
+  );
 };
 
-type StateManager = Freezer;
+const HomeControls = (props) => {
+  const homeWithActions = {
+    data: props.home,
+    actions: {
+      newMeetingClicked: props.dispatchFactory(createAction('new_meeting'))
+    }
+  };
 
-export const initStateManager = (initialState: ?Object): StateManager =>
-  new Freezer(initialState || defaultState);
+  const home = homeWithActions;
 
-export const defaultState: Object = {
-  ui: {
-    app: appState(),
-    settings: settingsState(),
-    home: homeState(),
-    meeting: meetingState()
-  }
+  return (
+    <ButtonGroup vertical block>
+      <Button onClick={home.actions.newMeetingClicked}>New Meeting</Button>
+    </ButtonGroup>
+  );
+};
+
+const MyMeetings = (props) => {
+  const meetingsWithActions = _.map(
+    props.meetings,
+    m => {
+      return {
+        data:    m,
+        actions: {
+          meetingClicked: props.dispatchFactory(createAction('meeting_clicked', {meeting:m}))
+        }
+      };
+    }
+  );
+
+  const meetings = meetingsWithActions;
+
+  const filterGlyphicon = <Glyphicon glyph="search" />;
+
+  return (
+    <span>
+      <Input type="text" placeholder="Filter meetings by user ..." addonBefore={filterGlyphicon} />
+      <MeetingList meetings={meetings} />
+    </span>
+  );
+};
+
+const MeetingList = (props) => {
+  const meetings = _.map(
+    props.meetings,
+    m => (<MeetingListItem key={m.data.id} meeting={m} />)
+  );
+
+  return (
+    <ListGroup>
+      {meetings}
+    </ListGroup>
+  );
+};
+
+const MeetingListItem = (props) => {
+  const meeting = props.meeting;
+
+  return (
+    <ListGroupItem onClick={meeting.actions.meetingClicked}>
+      {meeting.data.name}
+    </ListGroupItem>
+  );
 };
