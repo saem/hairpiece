@@ -55,7 +55,5 @@ module.hot.dispose((data) => {
 });
 
 // todo list:
-// - more clean-up of where state (code and data) is created
-// - testing
 // - more UI features
 // - add in persistence via HTTP
