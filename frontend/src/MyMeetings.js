@@ -31,19 +31,24 @@ export const MyMeetings = ({meetings, dispatchFactory}) => {
 
   return (
     <span>
-      <MeetingFilter />
+      <MeetingFilter dispatchFactory={dispatchFactory} />
       <MeetingList meetings={meetingsWithActions} />
     </span>
   );
 };
 
-const MeetingFilter = (props) => {
+const MeetingFilter = ({dispatchFactory}) => {
   const filterGlyphicon = <Glyphicon glyph="search" />;
+
+  const rawFilterTextAction = (raw) => {
+    dispatchFactory(createAction('raw_filter', {raw: raw.target.value}))();
+  };
 
   return (
     <Input type="text"
            placeholder="Filter meetings by user ..."
-           addonBefore={filterGlyphicon} />
+           addonBefore={filterGlyphicon}
+           onChange={rawFilterTextAction} />
   );
 };
 
