@@ -34,9 +34,9 @@ const onAction = action => {
 
 const appData = {
   meetings: [
-    {id: 1, name: 'Meeting 1'}
-  , {id: 2, name: 'Meeting 2'}
-  , {id: 3, name: 'Meeting 3'}
+    {id: 1, name: 'Meeting 1', person: 'andrew'}
+  , {id: 2, name: 'Meeting 2', person: 'saem'}
+  , {id: 3, name: 'Meeting 3', person: 'michael'}
   ]
 };
 
@@ -55,5 +55,38 @@ module.hot.dispose((data) => {
 });
 
 // todo list:
+// - Figure out if we want to rehash elm
 // - more UI features
 // - add in persistence via HTTP
+
+// Elm rehash prototype
+
+const fooView = ({dispatcher}) => {
+  return (
+    <foo>
+      <M dispatcher={dispatcher.forwardTo('M')} />
+      <S dispatcher={dispatcher.forwardTo('S')} />
+    </foo>
+  );
+}
+
+const fooUpdate = (action, state) => {
+  switch(action.type) {
+    case 'foo':
+    //handle here
+    break;
+    case 'M.clicked':
+      return {
+        M: mUpdate(action),
+        S: sUpdate({type: 'write_code', args: action.args})
+      };
+  }
+};
+
+const M = ({counter, dispatcher}) => {
+  return (<Button onClick={dispatcher.dispatch('clicked', {})}>Click Me ({counter})</Button>);
+}
+
+const mUpdate = (action, state) => {
+  return {counter: state.counter + 1};
+}
