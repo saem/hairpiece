@@ -29,11 +29,10 @@
     "freezer-js": "^0.9.3",
     "kefir": "^3.2.0",
     "lodash": "^4.0.0",
-    "history": "^2.0.0-rc2",
+    "history": "^2.0.0",
     "react": "^0.14.0",
     "react-bootstrap": "^0.27.3",
     "react-dom": "^0.14.0",
-    "react-router": "^2.0.0-rc5",
     "reqwest": "^2.0.4",
     "rx": "^4.0.6",
     "yargs": "^3.18.0"

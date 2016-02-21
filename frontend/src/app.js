@@ -6,6 +6,7 @@ import {
   AppContainer
 } from './AppContainer';
 import './styles/core.scss';
+import { createHistory } from 'history';
 
 const defaultState = {};
 const initialState = module.hot && module.hot.data ?
@@ -14,37 +15,89 @@ const initialState = module.hot && module.hot.data ?
 
 const target = document.getElementById('root');
 
-const dispatchFactory = (action) => {
-  return () => {
-    onAction(action);
-  };
-}
-
-const onAction = action => {
-  console.log(action);
-
-  switch(action.actionType) {
-    case 'new_meeting':
-      console.log('this is a new meeting specific action');
-    break;
-    default:
-      console.log('unhandled action', action);
-  }
-};
-
 const appData = {
   meetings: [
     {id: 1, name: 'Meeting 1', person: 'andrew'}
   , {id: 2, name: 'Meeting 2', person: 'saem'}
   , {id: 3, name: 'Meeting 3', person: 'michael'}
   ]
+  , page: {
+    location: undefined,
+    data: {}
+  }
 };
 
-// @todo embelish with actions here
+const dispatchFactory = (action) => {
+  return () => {
+    onAction(action);
+  };
+}
 
-ReactDOM.render(
-  (<AppContainer appData={appData} dispatchFactory={dispatchFactory} />),
-  target);
+const render = appData => {
+  ReactDOM.render(
+    (<AppContainer appData={appData} dispatchFactory={dispatchFactory} />),
+    target);
+};
+
+const history = createHistory();
+
+// Listen for changes to the current location. The
+// listener is called once immediately.
+const unlisten = history.listen(location => {
+  console.log('History API', location);
+
+  switch(location.action) {
+    case "PUSH":
+      appData.page = {location, data: {}}; // clean-up old state
+      break;
+    case "POP":
+      appData.page = location.state;  // restore previous state
+  }
+
+  // Force re-render
+  render(appData);
+});
+
+const navigate = (location, oldState) => {
+  history.replace({ state: oldState });
+  history.push(location);
+}
+
+const onAction = action => {
+  console.log('Action API', action);
+
+  actionProcessor(action);
+
+  // Force re-render
+  render(appData);
+};
+
+const actionProcessor = action => {
+  switch(action.actionType) {
+    case 'new_meeting':
+      navigate({ pathname: '/new_meeting' }, appData.page);
+
+      appData.page.data = {
+        reportedMetrics: [
+          {metric: 'work',       value: 'same'},
+          {metric: 'company',    value: 'same'},
+          {metric: 'team',       value: 'same'},
+          {metric: 'individual', value: 'same'},
+          {metric: 'manager',    value: 'same'}
+        ],
+        validMetricValues: ['better', 'same', 'worse'],
+        notes: {
+          format: 'text',
+          value: ''
+        }
+      };
+    break;
+    default:
+      console.log('unhandled action');
+  };
+};
+
+render(appData);
 
 // we can safely accept ourselves, as we export nothing
 module.hot && module.hot.accept() &&
@@ -55,7 +108,6 @@ module.hot.dispose((data) => {
 });
 
 // todo list:
-// - Figure out if we want to rehash elm
 // - more UI features
 // - add in persistence via HTTP
 

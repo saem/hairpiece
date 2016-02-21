@@ -32,8 +32,8 @@ config.set('vendor_dependencies', [
   'history',
   'freezer-js',
   'kefir',
+  'history',
   'react',
-  'react-router',
   'react-bootstrap',
   'rx'
 ].filter(dep => {
