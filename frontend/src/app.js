@@ -7,6 +7,7 @@ import {
 } from './AppContainer';
 import './styles/core.scss';
 import { createHistory } from 'history';
+import Kefir from 'kefir';
 
 const defaultState = {};
 const initialState = module.hot && module.hot.data ?
@@ -21,7 +22,7 @@ const appData = {
   , {id: 2, name: 'Meeting 2', person: 'saem'}
   , {id: 3, name: 'Meeting 3', person: 'michael'}
   ]
-  , page: {
+  , pages: {
     location: undefined,
     data: {}
   }
@@ -33,6 +34,23 @@ const dispatchFactory = (action) => {
   };
 }
 
+Kefir.emitter = () => {
+  let emitter;
+  const stream = Kefir.stream(_emitter => {
+    emitter = _emitter;
+    return () => emitter = null;
+  });
+
+  stream.emit = x => {
+    emitter && emitter.emit(x);
+    return stream;
+  }
+
+  // TODO: other methods .error, .end, .emitEvent if needed
+
+  return stream;
+};
+
 const render = appData => {
   ReactDOM.render(
     (<AppContainer appData={appData} dispatchFactory={dispatchFactory} />),
@@ -40,62 +58,70 @@ const render = appData => {
 };
 
 const history = createHistory();
+const historyEmitter = Kefir.emitter();
 
 // Listen for changes to the current location. The
 // listener is called once immediately.
 const unlisten = history.listen(location => {
-  console.log('History API', location);
-
-  switch(location.action) {
-    case "PUSH":
-      appData.page = {location, data: {}}; // clean-up old state
-      break;
-    case "POP":
-      appData.page = location.state;  // restore previous state
-  }
-
-  // Force re-render
-  render(appData);
+  historyEmitter.emit(location);
 });
 
-const navigate = (location, oldState) => {
-  history.replace({ state: oldState });
+const onAction = action => {
+  actionEmitter.emit(action);
+};
+
+const actionEmitter = Kefir.emitter();
+
+const navigate = (location) => {
   history.push(location);
 }
 
-const onAction = action => {
-  console.log('Action API', action);
-
-  actionProcessor(action);
-
-  // Force re-render
-  render(appData);
-};
-
 const actionProcessor = action => {
   switch(action.actionType) {
+    case 'navigate_new_meeting':
+      navigate({ pathname: '/new_meeting' });
+      break;
     case 'new_meeting':
-      navigate({ pathname: '/new_meeting' }, appData.page);
-
-      appData.page.data = {
-        reportedMetrics: [
-          {metric: 'work',       value: 'same'},
-          {metric: 'company',    value: 'same'},
-          {metric: 'team',       value: 'same'},
-          {metric: 'individual', value: 'same'},
-          {metric: 'manager',    value: 'same'}
-        ],
-        validMetricValues: ['better', 'same', 'worse'],
-        notes: {
-          format: 'text',
-          value: ''
+      appData.new_meeting = {
+        data : {
+          reportedMetrics: [
+            {metric: 'work',       value: 'same'},
+            {metric: 'company',    value: 'same'},
+            {metric: 'team',       value: 'same'},
+            {metric: 'individual', value: 'same'},
+            {metric: 'manager',    value: 'same'}
+          ],
+          validMetricValues: ['better', 'same', 'worse'],
+          notes: {
+            format: 'text',
+            value: ''
+          }
         }
       };
-    break;
+      break;
+    case 'home':
+      appData.location = action.location;
+      break;
     default:
       console.log('unhandled action');
   };
 };
+
+historyEmitter.onValue(location => {
+  appData.location = location;
+});
+
+historyEmitter.map(location => {
+    return location.pathname == '/new_meeting' ?
+      {actionType: 'new_meeting', location} :
+      {actionType: 'home', location};
+  })
+  .merge(actionEmitter).onValue(x => {
+    console.log('emittiest', x);
+    actionProcessor(x);
+    //force re-render
+    render(appData);
+  });
 
 render(appData);
 

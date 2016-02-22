@@ -17,8 +17,8 @@ const createAction = (name, optionalArgs) => {
 
 export const AppContainer = (props) => {
   let page = <Home {...props} />;
-  if (props.appData.page.location) {
-    switch(props.appData.page.location.pathname) {
+  if (props.appData.location) {
+    switch(props.appData.location.pathname) {
       case '/new_meeting':
         page = <NewMeeting {...props} />;
         break;
@@ -51,7 +51,7 @@ const Home = ({appData, dispatchFactory}) => {
 }
 
 const HomeControls = ({home, dispatchFactory}) => {
-  const newMeeting = dispatchFactory(createAction('new_meeting'));
+  const newMeeting = dispatchFactory(createAction('navigate_new_meeting'));
 
   return (
     <ButtonGroup vertical block>
