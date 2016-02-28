@@ -8,22 +8,28 @@ import {
   , Glyphicon
 } from 'react-bootstrap';
 
+export const myMeetingsInit = () => {
+  return [
+    {id: 1, name: 'Meeting 1', person: 'andrew'}
+  , {id: 2, name: 'Meeting 2', person: 'saem'}
+  , {id: 3, name: 'Meeting 3', person: 'michael'}
+  ];
+}
+
 const createAction = (name, optionalArgs) => {
   const args = optionalArgs || {};
 
   return _.merge({ actionType: name }, args);
 }
 
-export const MyMeetings = ({meetings, dispatchFactory}) => {
+export const MyMeetings = ({meetings, dispatcher}) => {
   const meetingsWithActions = _.map(
     meetings,
     m => {
       return {
         data:    m,
         actions: {
-          meetingClicked: dispatchFactory(
-            createAction('meeting_clicked', {meeting:m})
-          )
+          meetingClicked: dispatcher.send('meeting_clicked', {meeting:m})
         }
       };
     }
@@ -31,17 +37,17 @@ export const MyMeetings = ({meetings, dispatchFactory}) => {
 
   return (
     <span>
-      <MeetingFilter dispatchFactory={dispatchFactory} />
+      <MeetingFilter dispatcher={dispatcher} />
       <MeetingList meetings={meetingsWithActions} />
     </span>
   );
 };
 
-const MeetingFilter = ({dispatchFactory}) => {
+const MeetingFilter = ({dispatcher}) => {
   const filterGlyphicon = <Glyphicon glyph="search" />;
 
   const rawFilterTextAction = (raw) => {
-    dispatchFactory(createAction('raw_filter', {raw: raw.target.value}))();
+    dispatcher(createAction('raw_filter', {raw: raw.target.value}))();
   };
 
   return (

@@ -6,21 +6,24 @@ import {
   Grid, Row, Col
   , ButtonGroup, Button
 } from 'react-bootstrap';
-import { MyMeetings } from './MyMeetings';
-import { NewMeeting } from './meetings/NewMeeting';
+import { MyMeetings, myMeetingsInit } from './MyMeetings';
+import { NewMeeting, newMeetingInit } from './meetings/NewMeeting';
 
-const createAction = (name, optionalArgs) => {
-  const args = optionalArgs || {};
+export const init = () => {
+  return {
+    location: undefined,
+    myMeetings: myMeetingsInit(),
+    newMeeting: newMeetingInit()
+  };
+};
 
-  return _.merge({ actionType: name }, args);
-}
-
-export const AppContainer = (props) => {
-  let page = <Home {...props} />;
-  if (props.appData.location) {
-    switch(props.appData.location.pathname) {
+export const AppContainer = ({dispatcher, appData}) => {
+  let page = <Home dispatcher={dispatcher} appData={appData} />;
+  if (appData.location) {
+    switch(appData.location.pathname) {
       case '/new_meeting':
-        page = <NewMeeting {...props} />;
+        page = <NewMeeting dispatcher={dispatcher.forwardTo('newMeeting')}
+                           newMeeting={appData.newMeeting} />;
         break;
     }
   }
@@ -36,22 +39,22 @@ export const AppContainer = (props) => {
   );
 };
 
-const Home = ({appData, dispatchFactory}) => {
+const Home = ({appData, dispatcher}) => {
   return (
     <span>
       <Row>
-        <HomeControls home={appData} dispatchFactory={dispatchFactory} />
+        <HomeControls home={appData} dispatcher={dispatcher} />
       </Row>
       <Row>
-        <MyMeetings meetings={appData.meetings}
-                    dispatchFactory={dispatchFactory} />
+        <MyMeetings meetings={appData.myMeetings}
+                    dispatcher={dispatcher.forwardTo('my_meetings')} />
       </Row>
     </span>
   );
 }
 
-const HomeControls = ({home, dispatchFactory}) => {
-  const newMeeting = dispatchFactory(createAction('navigate_new_meeting'));
+const HomeControls = ({home, dispatcher}) => {
+  const newMeeting = dispatcher.send('navigate_new_meeting');
 
   return (
     <ButtonGroup vertical block>

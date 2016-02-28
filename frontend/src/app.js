@@ -3,7 +3,8 @@
 import React    from 'react';
 import ReactDOM from 'react-dom';
 import {
-  AppContainer
+  AppContainer,
+  init
 } from './AppContainer';
 import './styles/core.scss';
 import { createHistory } from 'history';
@@ -16,23 +17,35 @@ const initialState = module.hot && module.hot.data ?
 
 const target = document.getElementById('root');
 
-const appData = {
-  meetings: [
-    {id: 1, name: 'Meeting 1', person: 'andrew'}
-  , {id: 2, name: 'Meeting 2', person: 'saem'}
-  , {id: 3, name: 'Meeting 3', person: 'michael'}
-  ]
-  , pages: {
-    location: undefined,
-    data: {}
-  }
-};
+const appData = init();
 
-const dispatchFactory = (action) => {
-  return () => {
-    onAction(action);
+const actionDispatcher = (action) => {
+  return calltimeArgs => {
+
+    const args = calltimeArgs || {};
+    onAction(_.merge(action, args));
   };
 }
+
+const dispatchFactory = (actionDispatcher, creatorPrefix) => {
+  creatorPrefix = creatorPrefix ? creatorPrefix + '.' : '';
+
+  return {
+    forwardTo: (creatorName) => {
+      return dispatchFactory(
+        actionDispatcher, creatorPrefix + creatorName);
+    },
+    send: (actionName, optionalArgs) => {
+      const args = optionalArgs || {};
+      const action = _.merge(
+        { actionType: actionName, creator: creatorPrefix },
+        args
+      );
+
+      return actionDispatcher(action);
+    }
+  };
+};
 
 Kefir.emitter = () => {
   let emitter;
@@ -53,17 +66,16 @@ Kefir.emitter = () => {
 
 const render = appData => {
   ReactDOM.render(
-    (<AppContainer appData={appData} dispatchFactory={dispatchFactory} />),
+    (<AppContainer appData={appData}
+                   dispatcher={dispatchFactory(actionDispatcher)} />),
     target);
 };
 
 const history = createHistory();
-const historyEmitter = Kefir.emitter();
+const history$ = Kefir.emitter();
 
-// Listen for changes to the current location. The
-// listener is called once immediately.
-const unlisten = history.listen(location => {
-  historyEmitter.emit(location);
+history$.onValue(location => {
+  appData.location = location;
 });
 
 const onAction = action => {
@@ -74,56 +86,43 @@ const actionEmitter = Kefir.emitter();
 
 const navigate = (location) => {
   history.push(location);
-}
+};
 
 const actionProcessor = action => {
   switch(action.actionType) {
+
     case 'navigate_new_meeting':
       navigate({ pathname: '/new_meeting' });
       break;
     case 'new_meeting':
-      appData.new_meeting = {
-        data : {
-          reportedMetrics: [
-            {metric: 'work',       value: 'same'},
-            {metric: 'company',    value: 'same'},
-            {metric: 'team',       value: 'same'},
-            {metric: 'individual', value: 'same'},
-            {metric: 'manager',    value: 'same'}
-          ],
-          validMetricValues: ['better', 'same', 'worse'],
-          notes: {
-            format: 'text',
-            value: ''
-          }
-        }
-      };
       break;
     case 'home':
       appData.location = action.location;
       break;
     default:
-      console.log('unhandled action');
+      console.log('unhandled action', action);
   };
 };
 
-historyEmitter.onValue(location => {
-  appData.location = location;
-});
-
-historyEmitter.map(location => {
-    return location.pathname == '/new_meeting' ?
+history$.map(location => {
+  return location.pathname == '/new_meeting' ?
       {actionType: 'new_meeting', location} :
       {actionType: 'home', location};
   })
-  .merge(actionEmitter).onValue(x => {
-    console.log('emittiest', x);
+  .merge(actionEmitter)
+  .onValue(x => {
     actionProcessor(x);
+
     //force re-render
     render(appData);
   });
 
-render(appData);
+// Listen for changes to the current location. The
+// listener is called once immediately.
+const unlisten = history.listen(location => {
+  console.log('listener', location);
+  history$.emit(location);
+});
 
 // we can safely accept ourselves, as we export nothing
 module.hot && module.hot.accept() &&
