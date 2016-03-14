@@ -1,169 +1,89 @@
 /* @flow */
 
-import React    from 'react';
-import ReactDOM from 'react-dom';
 import {
-  AppContainer,
-  init
+  init,
+  update
 } from './AppContainer';
 import './styles/core.scss';
-import { createHistory } from 'history';
-import Kefir from 'kefir';
 
-const defaultState = {};
+import { historyStream, history, historyListen } from './history';
+import { createRenderer } from './render';
+import { dispatcher, actionStream } from './actions';
+
+import { Kefir } from './kefir';
+
+const defaultState = { ready: false, appData: {} };
 const initialState = module.hot && module.hot.data ?
   module.hot.data.state :
   defaultState;
 
-const target = document.getElementById('root');
+let appData = init();
 
-const appData = init();
+const effectEmitter = Kefir.emitter();
 
-const actionDispatcher = (action) => {
-  return calltimeArgs => {
+const effectProcessor = (history, render) => {
+  return effect => {
+    switch (effect.effectType) {
+      case 'navigate':
+        history.push(effect.args);
+        break;
+      case 'render':
+        render(effect.args);
+        break;
+      case 'ready':
+        historyListen();
+        break;
+      case 'state':
+        appData = effect.args;
 
-    const args = calltimeArgs || {};
-    onAction(_.merge(action, args));
-  };
-}
-
-const dispatchFactory = (actionDispatcher, creatorPrefix) => {
-  creatorPrefix = creatorPrefix ? creatorPrefix + '.' : '';
-
-  return {
-    forwardTo: (creatorName) => {
-      return dispatchFactory(
-        actionDispatcher, creatorPrefix + creatorName);
-    },
-    send: (actionName, optionalArgs) => {
-      const args = optionalArgs || {};
-      const action = _.merge(
-        { actionType: actionName, creator: creatorPrefix },
-        args
-      );
-
-      return actionDispatcher(action);
+        //force re-render
+        effectDispatcher({effectType: 'render', args: appData});
+        break;
+      default:
+        console.log('unhandled effect', effect);
     }
   };
 };
 
-Kefir.emitter = () => {
-  let emitter;
-  const stream = Kefir.stream(_emitter => {
-    emitter = _emitter;
-    return () => emitter = null;
-  });
+const render = createRenderer(dispatcher);
+const effectDispatcher = effect => effectEmitter.emit(effect);
 
-  stream.emit = x => {
-    emitter && emitter.emit(x);
-    return stream;
-  }
-
-  // TODO: other methods .error, .end, .emitEvent if needed
-
-  return stream;
+const processAction = action => {
+  action.creatorPath = action.creator.split('.');
+  return update(effectDispatcher)(action, _.clone(appData));
 };
 
-const render = appData => {
-  ReactDOM.render(
-    (<AppContainer appData={appData}
-                   dispatcher={dispatchFactory(actionDispatcher)} />),
-    target);
-};
-
-const history = createHistory();
-const history$ = Kefir.emitter();
-
-history$.onValue(location => {
-  appData.location = location;
-});
-
-const onAction = action => {
-  actionEmitter.emit(action);
-};
-
-const actionEmitter = Kefir.emitter();
-
-const navigate = (location) => {
-  history.push(location);
-};
-
-const actionProcessor = action => {
-  switch(action.actionType) {
-
-    case 'navigate_new_meeting':
-      navigate({ pathname: '/new_meeting' });
-      break;
-    case 'new_meeting':
-      break;
-    case 'home':
-      appData.location = action.location;
-      break;
-    default:
-      console.log('unhandled action', action);
-  };
-};
-
-history$.map(location => {
-  return location.pathname == '/new_meeting' ?
-      {actionType: 'new_meeting', location} :
-      {actionType: 'home', location};
+// actions
+historyStream
+  .merge(actionStream)
+  .log('action')
+  .map(action => {
+    console.log(Date.now());
+    return processAction(action);
   })
-  .merge(actionEmitter)
-  .onValue(x => {
-    actionProcessor(x);
-
-    //force re-render
-    render(appData);
+  .log('state')
+  .onValue(state => {
+    console.log(Date.now());
+    //console.log('action - before', appData.location);
+    effectDispatcher({effectType: 'state', args: state });
+    //console.log('action - after', appData.location);
   });
 
-// Listen for changes to the current location. The
-// listener is called once immediately.
-const unlisten = history.listen(location => {
-  console.log('listener', location);
-  history$.emit(location);
-});
+const processEffect = effectProcessor(history, render);
+effectEmitter.onValue(processEffect);
+
+effectDispatcher({effectType: 'ready'});
+
+// history must listen here
 
 // we can safely accept ourselves, as we export nothing
 module.hot && module.hot.accept() &&
 
 // push the old state onto module.hot.data so we can make that initialState
 module.hot.dispose((data) => {
-  data.state = {};
+  data.state = {ready: true, appData};
 });
 
 // todo list:
 // - more UI features
 // - add in persistence via HTTP
-
-// Elm rehash prototype
-
-const fooView = ({dispatcher}) => {
-  return (
-    <foo>
-      <M dispatcher={dispatcher.forwardTo('M')} />
-      <S dispatcher={dispatcher.forwardTo('S')} />
-    </foo>
-  );
-}
-
-const fooUpdate = (action, state) => {
-  switch(action.type) {
-    case 'foo':
-    //handle here
-    break;
-    case 'M.clicked':
-      return {
-        M: mUpdate(action),
-        S: sUpdate({type: 'write_code', args: action.args})
-      };
-  }
-};
-
-const M = ({counter, dispatcher}) => {
-  return (<Button onClick={dispatcher.dispatch('clicked', {})}>Click Me ({counter})</Button>);
-}
-
-const mUpdate = (action, state) => {
-  return {counter: state.counter + 1};
-}

@@ -21,6 +21,10 @@ export const newMeetingInit = () => {
   };
 };
 
+const newMeetingUpdate = (action, state) => {
+  return state;
+}
+
 const createAction = (name, optionalArgs) => {
   const args = optionalArgs || {};
 
