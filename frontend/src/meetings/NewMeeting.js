@@ -21,34 +21,17 @@ export const newMeetingInit = () => {
   };
 };
 
-const newMeetingUpdate = (action, state) => {
-  return state;
-}
-
-const createAction = (name, optionalArgs) => {
-  const args = optionalArgs || {};
-
-  return _.merge({ actionType: name }, args);
-}
-
-export const NewMeeting = ({dispatcher, newMeeting}) => {
-  const metricsWithActions = _.map(
+export const NewMeeting = ({newMeeting}) => {
+  const metrics = _.map(
     newMeeting.reportedMetrics,
-    metric => {
-      return {
-        data: _.merge(metric, { values: newMeeting.validMetricValues}),
-        action: {
-          metricChanged: dispatcher.send('change_metric', {metric})
-        }
-      };
-    }
-  )
+    m => _.merge({}, m, { values: newMeeting.validMetricValues })
+  );
 
   return (
     <span>
       <h1>New Meeting</h1>
       <form>
-        <Metrics metrics={metricsWithActions}/>
+        <Metrics metrics={metrics}/>
       </form>
     </span>
   );
@@ -64,13 +47,15 @@ const Metrics = ({metrics}) => {
 };
 
 const Metric = ({metric}) => {
-  const options = _.map(metric.data.values,
+  const onMetricChanged = () => console.log('on metric changed');
+
+  const options = _.map(metric.values,
     (v, i) => (<option key={i} value={v}>{v}</option>));
   return (
     <Input type="select"
-           label={metric.data.name}
-           value={metric.data.value}
-           onChange={metric.action.metricChanged}>
+           label={metric.name}
+           value={metric.value}
+           onChange={onMetricChanged}>
         {options}
     </Input>
   );

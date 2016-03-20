@@ -2,86 +2,42 @@
 
 import {
   init,
-  update
+  AppContainer
 } from './AppContainer';
 import './styles/core.scss';
+import { createFreezer } from './freezer';
 
-import { historyStream, history, historyListen } from './history';
+import { createHistory } from './history';
 import { createRenderer } from './render';
-import { dispatcher, actionStream } from './actions';
 
-import { Kefir } from './kefir';
-
-const defaultState = { ready: false, appData: {} };
-const initialState = module.hot && module.hot.data ?
+// State
+const defaultState = init();
+const initialState = module.hot && module.hot.data && module.hot.data.state ?
   module.hot.data.state :
   defaultState;
 
-let appData = init();
+let state = createFreezer(initialState);
 
-const effectEmitter = Kefir.emitter();
+// History
+const history = createHistory(state);
+state.getListener().on('navigate', args => history.push(args));
 
-const effectProcessor = (history, render) => {
-  return effect => {
-    switch (effect.effectType) {
-      case 'navigate':
-        history.push(effect.args);
-        break;
-      case 'render':
-        render(effect.args);
-        break;
-      case 'ready':
-        historyListen();
-        break;
-      case 'state':
-        appData = effect.args;
+// Rendering
+const renderer = createRenderer(AppContainer);
 
-        //force re-render
-        effectDispatcher({effectType: 'render', args: appData});
-        break;
-      default:
-        console.log('unhandled effect', effect);
-    }
-  };
-};
+state.getListener().on('update', newState => {
+  state = newState;
+  renderer(state);
+});
 
-const render = createRenderer(dispatcher);
-const effectDispatcher = effect => effectEmitter.emit(effect);
-
-const processAction = action => {
-  action.creatorPath = action.creator.split('.');
-  return update(effectDispatcher)(action, _.clone(appData));
-};
-
-// actions
-historyStream
-  .merge(actionStream)
-  .log('action')
-  .map(action => {
-    console.log(Date.now());
-    return processAction(action);
-  })
-  .log('state')
-  .onValue(state => {
-    console.log(Date.now());
-    //console.log('action - before', appData.location);
-    effectDispatcher({effectType: 'state', args: state });
-    //console.log('action - after', appData.location);
-  });
-
-const processEffect = effectProcessor(history, render);
-effectEmitter.onValue(processEffect);
-
-effectDispatcher({effectType: 'ready'});
-
-// history must listen here
+renderer(state);
 
 // we can safely accept ourselves, as we export nothing
 module.hot && module.hot.accept() &&
 
 // push the old state onto module.hot.data so we can make that initialState
 module.hot.dispose((data) => {
-  data.state = {ready: true, appData};
+  data.state = state.toJS();
 });
 
 // todo list:

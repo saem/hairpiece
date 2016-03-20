@@ -7,59 +7,24 @@ import {
   , ButtonGroup, Button
 } from 'react-bootstrap';
 import { MyMeetings, myMeetingsInit } from './MyMeetings';
-import {
-  NewMeeting,
-  newMeetingInit,
-  newMeetingUpdate
-} from './meetings/NewMeeting';
+import { NewMeeting, newMeetingInit } from './meetings/NewMeeting';
 
 export const init = () => {
   return {
+    ready : false,
     location: undefined,
     myMeetings: myMeetingsInit(),
     newMeeting: newMeetingInit()
   };
 };
 
-export const update = effectDispatcher => {
-  const navigate = args => {
-    effectDispatcher({ effectType: 'navigate', args });
-  };
-
-  return (action, appData) => {
-    switch(action.actionType) {
-      case 'navigate_new_meeting':
-        navigate({ pathname: '/new_meeting' });
-        break;
-      case 'new_meeting':
-        appData.location = action.location;
-        break;
-      case 'home':
-        appData.location = action.location;
-        break;
-      default:
-        action.creatorPath = _.drop(action.creatorPath);
-
-        switch(action.creatorPath) {
-          case 'newMeeting':
-            appData.newMeeting = newMeetingUpdate(action, appData.newMeeting);
-          default:
-            console.log('unhandled action', action);
-        }
-    }
-
-    return appData;
-  }
-};
-
-export const AppContainer = ({dispatcher, appData}) => {
-  let page = <Home dispatcher={dispatcher} appData={appData} />;
-  if (appData.location) {
+export const AppContainer = ({appData}) => {
+  let page = <Home appData={appData} />;
+  if(appData.location) {
     switch(appData.location.pathname) {
       case '/new_meeting':
-        page = <NewMeeting dispatcher={dispatcher.forwardTo('newMeeting')}
-                           newMeeting={appData.newMeeting} />;
-        break;
+        page = <NewMeeting newMeeting={appData.newMeeting} />;
+      break;
     }
   }
 
@@ -74,34 +39,39 @@ export const AppContainer = ({dispatcher, appData}) => {
   );
 };
 
-const Home = ({appData, dispatcher}) => {
+const Home = ({appData}) => {
   return (
     <span>
       <Row>
-        <HomeControls home={appData} dispatcher={dispatcher} />
+        <HomeControls home={appData} />
       </Row>
       <Row>
-        <MyMeetings meetings={appData.myMeetings}
-                    dispatcher={dispatcher.forwardTo('my_meetings')} />
+        <MyMeetings meetings={appData.myMeetings} />
       </Row>
     </span>
   );
 }
 
-const HomeControls = ({home, dispatcher}) => {
-  const newMeeting = dispatcher.send('navigate_new_meeting');
+const HomeControls = ({home}) => {
+  const newMeeting = () => {
+    home.getListener().trigger('navigate', { pathname: '/new_meeting' });
+  };
 
   return (
     <ButtonGroup vertical block>
-      <NewMeetingButton newMeeting={newMeeting}/>
+      <NewMeetingButton onNewMeeting={newMeeting}/>
     </ButtonGroup>
   );
 };
 
-const NewMeetingButton = ({newMeeting}) => {
+const NewMeetingButton = ({onNewMeeting}) => {
+  return <NewMeetingButtonView onNewMeeting={onNewMeeting} />
+};
+
+const NewMeetingButtonView = ({onNewMeeting}) => {
   return (
-    <Button onClick={newMeeting}>
+    <Button onClick={onNewMeeting}>
       New Meeting
     </Button>
   );
-}
+};

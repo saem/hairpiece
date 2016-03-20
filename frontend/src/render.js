@@ -1,14 +1,12 @@
 import React    from 'react';
 import ReactDOM from 'react-dom';
-import { AppContainer } from './AppContainer';
 
 const target = document.getElementById('root');
 
-export const createRenderer = dispatcher => {
+export const createRenderer = (AppContainer) => {
   return appData => {
     ReactDOM.render(
-      (<AppContainer appData={appData}
-                     dispatcher={dispatcher} />),
+      (<AppContainer appData={appData} />),
       target);
   }
 };

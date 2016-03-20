@@ -9,59 +9,56 @@ import {
 } from 'react-bootstrap';
 
 export const myMeetingsInit = () => {
-  return [
-    {id: 1, name: 'Meeting 1', person: 'andrew'}
-  , {id: 2, name: 'Meeting 2', person: 'saem'}
-  , {id: 3, name: 'Meeting 3', person: 'michael'}
-  ];
-}
+  return {
+    filter: '',
+    list: [
+      {id: 1, name: 'Andrew Weekly', person: 'andrew'}
+    , {id: 2, name: 'Saem Weekly', person: 'saem'}
+    , {id: 3, name: 'Skip Level', person: 'michael'}
+    ]
+  };
+};
 
-const createAction = (name, optionalArgs) => {
-  const args = optionalArgs || {};
+export const MyMeetings = ({meetings}) => {
+  const onFilterValue = value => {
+      meetings.set({filter: value});
+    };
 
-  return _.merge({ actionType: name }, args);
-}
-
-export const MyMeetings = ({meetings, dispatcher}) => {
-  const meetingsWithActions = _.map(
-    meetings,
-    m => {
-      return {
-        data:    m,
-        actions: {
-          meetingClicked: dispatcher.send('meeting_clicked', {meeting:m})
-        }
-      };
-    }
-  );
+  const visibleMeetings = meetings.list.filter(
+    i => i.name.startsWith(meetings.filter));
 
   return (
     <span>
-      <MeetingFilter dispatcher={dispatcher} />
-      <MeetingList meetings={meetingsWithActions} />
+      <MeetingFilter onFilterValue={onFilterValue} />
+      <MeetingList meetings={visibleMeetings} />
     </span>
   );
 };
 
-const MeetingFilter = ({dispatcher}) => {
-  const filterGlyphicon = <Glyphicon glyph="search" />;
-
-  const rawFilterTextAction = (raw) => {
-    dispatcher(createAction('raw_filter', {raw: raw.target.value}))();
+const MeetingFilter = ({onFilterValue}) => {
+  const onFilterInput = (event) => {
+    const untrimedValue = event.target.value || '';
+    onFilterValue(untrimedValue.trim());
   };
+
+  return <MeetingFilterView onFilterInput={onFilterInput} />
+};
+
+const MeetingFilterView  = ({onFilterInput}) => {
+  const filterGlyphicon = <Glyphicon glyph="search" />;
 
   return (
     <Input type="text"
            placeholder="Filter meetings by user ..."
            addonBefore={filterGlyphicon}
-           onChange={rawFilterTextAction} />
+           onChange={onFilterInput} />
   );
 };
 
 const MeetingList = (props) => {
   const meetings = _.map(
     props.meetings,
-    m => (<MeetingListItem key={m.data.id} meeting={m} />)
+    m => (<MeetingListItem key={m.id} meeting={m} />)
   );
 
   return (
@@ -72,9 +69,15 @@ const MeetingList = (props) => {
 };
 
 const MeetingListItem = ({meeting}) => {
+  const onMeetingSelected = (raw) => { console.log('meeting selected', raw); };
+
+  return <MeetingListItemView meeting={meeting} onMeetingSelected={onMeetingSelected}/>
+};
+
+const MeetingListItemView = ({meeting, onMeetingSelected}) => {
   return (
-    <ListGroupItem onClick={meeting.actions.meetingClicked}>
-      {meeting.data.name}
+    <ListGroupItem onClick={onMeetingSelected}>
+      {meeting.name}
     </ListGroupItem>
   );
 };
