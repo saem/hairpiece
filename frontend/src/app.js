@@ -16,10 +16,11 @@ const initialState = module.hot && module.hot.data && module.hot.data.state ?
   module.hot.data.state :
   defaultState;
 
-let state = createFreezer(initialState);
+const freezer = createFreezer(initialState);
+let state = freezer.get();
 
 // History
-const history = createHistory(state);
+const history = createHistory(freezer);
 state.getListener().on('navigate', args => history.push(args));
 
 // Rendering

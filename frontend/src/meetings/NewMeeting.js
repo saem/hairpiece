@@ -22,34 +22,42 @@ export const newMeetingInit = () => {
 };
 
 export const NewMeeting = ({newMeeting}) => {
-  const metrics = _.map(
-    newMeeting.reportedMetrics,
-    m => _.merge({}, m, { values: newMeeting.validMetricValues })
-  );
-
   return (
     <span>
       <h1>New Meeting</h1>
       <form>
-        <Metrics metrics={metrics}/>
+        <Metrics metrics={newMeeting.reportedMetrics}
+                 metricValues={newMeeting.validMetricValues}/>
       </form>
     </span>
   );
 }
 
-const Metrics = ({metrics}) => {
+const Metrics = ({metrics, metricValues}) => {
   const metricsToRender = _.map(metrics,
-    (m, i) => <Metric key={i} metric={m} />
+    (m, i) => <Metric key={i}
+                      metric={m}
+                      metricValues={metricValues} />
   );
   return (
     <span>{metricsToRender}</span>
   );
 };
 
-const Metric = ({metric}) => {
-  const onMetricChanged = () => console.log('on metric changed');
+const Metric = ({metric, metricValues}) => {
+  const onMetricChanged = event => {
+    metric.set({value: event.target.value});
+  };
 
-  const options = _.map(metric.values,
+  return (
+    <MetricView metric={metric}
+                onMetricChanged={onMetricChanged}
+                metricValues={metricValues} />
+  );
+};
+
+const MetricView = ({metric, metricValues, onMetricChanged}) => {
+  const options = _.map(metricValues,
     (v, i) => (<option key={i} value={v}>{v}</option>));
   return (
     <Input type="select"
@@ -59,4 +67,4 @@ const Metric = ({metric}) => {
         {options}
     </Input>
   );
-}
+};
