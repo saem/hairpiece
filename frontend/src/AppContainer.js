@@ -4,22 +4,21 @@ import React from 'react';
 import _ from 'lodash';
 import {
   Grid, Row, Col
-  , ButtonGroup, Button
 } from 'react-bootstrap';
-import { MyMeetings, myMeetingsInit } from './MyMeetings';
+import { Home, homeInit } from './home/Home';
 import { NewMeeting, newMeetingInit } from './meetings/NewMeeting';
 
 export const init = () => {
   return {
     ready : false,
     location: undefined,
-    myMeetings: myMeetingsInit(),
+    home: homeInit(),
     newMeeting: newMeetingInit()
   };
 };
 
 export const AppContainer = ({appData}) => {
-  let page = <Home appData={appData} />;
+  let page = <Home appData={appData.home} />;
   if(appData.location) {
     switch(appData.location.pathname) {
       case '/new_meeting':
@@ -36,42 +35,5 @@ export const AppContainer = ({appData}) => {
         </Col>
       </Row>
     </Grid>
-  );
-};
-
-const Home = ({appData}) => {
-  return (
-    <span>
-      <Row>
-        <HomeControls home={appData} />
-      </Row>
-      <Row>
-        <MyMeetings meetings={appData.myMeetings} />
-      </Row>
-    </span>
-  );
-}
-
-const HomeControls = ({home}) => {
-  const newMeeting = () => {
-    home.getListener().trigger('navigate', { pathname: '/new_meeting' });
-  };
-
-  return (
-    <ButtonGroup vertical block>
-      <NewMeetingButton onNewMeeting={newMeeting}/>
-    </ButtonGroup>
-  );
-};
-
-const NewMeetingButton = ({onNewMeeting}) => {
-  return <NewMeetingButtonView onNewMeeting={onNewMeeting} />
-};
-
-const NewMeetingButtonView = ({onNewMeeting}) => {
-  return (
-    <Button onClick={onNewMeeting}>
-      New Meeting
-    </Button>
   );
 };

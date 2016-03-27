@@ -20,16 +20,30 @@ const freezer = createFreezer(initialState);
 let state = freezer.get();
 
 // History
-const history = createHistory(freezer);
-state.getListener().on('navigate', args => history.push(args));
+const history = createHistory(location => {
+  // Listen for changes to the current location. The
+  // listener is called once immediately.
+  console.log('history', location);
+
+  state.set({location}).now();
+});
+freezer.on('navigate', args => {
+  console.log('navigate', args);
+  history.push(args);
+});
+freezer.get().getListener().on('navigate', a => console.log(a));
+state.getListener().on('navigate', a => console.log(a));
 
 // Rendering
 const renderer = createRenderer(AppContainer);
 
-state.getListener().on('update', newState => {
+freezer.on('update', newState => {
+  console.log('update', newState);
   state = newState;
   renderer(state);
 });
+state.getListener().on('update', a => console.log(a));
+freezer.get().getListener().on('update', a => console.log(a));
 
 renderer(state);
 

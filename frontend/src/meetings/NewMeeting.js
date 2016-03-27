@@ -27,11 +27,12 @@ export const NewMeeting = ({newMeeting}) => {
       <h1>New Meeting</h1>
       <form>
         <Metrics metrics={newMeeting.reportedMetrics}
-                 metricValues={newMeeting.validMetricValues}/>
+                 metricValues={newMeeting.validMetricValues} />
+        <NotesEditor notes={newMeeting.notes} />
       </form>
     </span>
   );
-}
+};
 
 const Metrics = ({metrics, metricValues}) => {
   const metricsToRender = _.map(metrics,
@@ -66,5 +67,13 @@ const MetricView = ({metric, metricValues, onMetricChanged}) => {
            onChange={onMetricChanged}>
         {options}
     </Input>
+  );
+};
+
+const NotesEditor = ({notes}) => {
+  return (
+    <Input type="textarea"
+           label="Notes"
+           placeholder="Pithy remarks go here" />
   );
 };
