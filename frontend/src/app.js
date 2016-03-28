@@ -4,11 +4,15 @@ import {
   init,
   AppContainer
 } from './AppContainer';
+
 import './styles/core.scss';
+
 import { createFreezer } from './freezer';
 
 import { createHistory } from './history';
 import { createRenderer } from './render';
+
+import { setupEffects } from './effects';
 
 // State
 const defaultState = init();
@@ -20,30 +24,23 @@ const freezer = createFreezer(initialState);
 let state = freezer.get();
 
 // History
-const history = createHistory(location => {
-  // Listen for changes to the current location. The
-  // listener is called once immediately.
-  console.log('history', location);
-
-  state.set({location}).now();
-});
-freezer.on('navigate', args => {
-  console.log('navigate', args);
+const history = createHistory(freezer);
+state.getListener().on('navigate', args => {
+  //console.log('navigate', args);
   history.push(args);
 });
-freezer.get().getListener().on('navigate', a => console.log(a));
-state.getListener().on('navigate', a => console.log(a));
+
+// App helpers to trigger effects
+const effects = setupEffects(freezer);
 
 // Rendering
-const renderer = createRenderer(AppContainer);
+const renderer = createRenderer(AppContainer, effects);
 
 freezer.on('update', newState => {
-  console.log('update', newState);
+  //console.log('update', newState);
   state = newState;
-  renderer(state);
+  renderer(newState);
 });
-state.getListener().on('update', a => console.log(a));
-freezer.get().getListener().on('update', a => console.log(a));
 
 renderer(state);
 

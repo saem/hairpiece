@@ -11,13 +11,22 @@ import {
 
 describe('AppContainer', () => {
   let component;
-  const props = { appData: { location: {pathname: '/'}, myMeetings: {}, newMeetings: {} }};
-
-  beforeEach(() => {
-    component = shallowRender(<AppContainer {...props} />);
-  });
 
   it('Renders Home Page', () => {
+    const appData = {location: {pathname: '/'}};
+    const component = shallowRender(<AppContainer appData={appData} />);
     expect(findComponentsByName(component, 'Home').length).to.equal(1);
+  });
+
+  it('Renders Home Page by Default', () => {
+    const appData = {location: {pathname: '/does_not_exist'}};
+    const component = shallowRender(<AppContainer appData={appData} />);
+    expect(findComponentsByName(component, 'Home').length).to.equal(1);
+  });
+
+  it('Renders New Meeting Page', () => {
+    const appData = {location: {pathname: '/new_meeting'}};
+    const component = shallowRender(<AppContainer appData={appData} />);
+    expect(findComponentsByName(component, 'NewMeeting').length).to.equal(1);
   });
 });

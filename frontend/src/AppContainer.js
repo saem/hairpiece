@@ -17,12 +17,12 @@ export const init = () => {
   };
 };
 
-export const AppContainer = ({appData}) => {
-  let page = <Home appData={appData.home} />;
+export const AppContainer = ({appData, effects}) => {
+  let page = <Home appData={appData.home} effects={effects} />;
   if(appData.location) {
     switch(appData.location.pathname) {
       case '/new_meeting':
-        page = <NewMeeting newMeeting={appData.newMeeting} />;
+        page = <NewMeeting newMeeting={appData.newMeeting} effects={effects} />;
       break;
     }
   }

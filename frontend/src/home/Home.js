@@ -10,11 +10,11 @@ export const homeInit = () => {
   return { myMeetings: myMeetingsInit() };
 };
 
-export const Home = ({appData}) => {
+export const Home = ({appData, effects}) => {
   return (
     <span>
       <Row>
-        <HomeControls home={appData} />
+        <HomeControls home={appData} effects={effects} />
       </Row>
       <Row>
         <MyMeetings meetings={appData.myMeetings} />
@@ -23,20 +23,17 @@ export const Home = ({appData}) => {
   );
 }
 
-const HomeControls = ({home}) => {
-  const newMeeting = () => {
-    console.log('new meeting');
-    home.getListener().trigger('navigate', { pathname: '/new_meeting' });
-  };
-
+const HomeControls = ({home, effects}) => {
   return (
     <ButtonGroup vertical block>
-      <NewMeetingButton onNewMeeting={newMeeting}/>
+      <NewMeetingButton effects={effects}/>
     </ButtonGroup>
   );
 };
 
-const NewMeetingButton = ({onNewMeeting}) => {
+const NewMeetingButton = ({effects}) => {
+  const onNewMeeting = () => effects.navigate({ pathname: '/new_meeting' });
+
   return <NewMeetingButtonView onNewMeeting={onNewMeeting} />
 };
 
