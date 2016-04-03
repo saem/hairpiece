@@ -25,7 +25,7 @@ describe('AppContainer', () => {
   });
 
   it('Renders New Meeting Page', () => {
-    const appData = {location: {pathname: '/new_meeting'}};
+    const appData = {location: {pathname: '/new_meeting/1'}};
     const component = shallowRender(<AppContainer appData={appData} />);
     expect(findComponentsByName(component, 'NewMeeting').length).to.equal(1);
   });
