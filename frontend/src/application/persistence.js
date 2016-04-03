@@ -1,30 +1,3 @@
-/** @flow */
-
-import events from './events';
-
-// Where all the http side-effects take place
-const handle = (
-    event: {type: String, method: String, url: String},
-    serverLog: {onNext: Function}
-) => {
-  Rx.Observable.just(landingDataFixture)
-    .delay(Math.floor(Math.random() * 500) + 10)
-    .forEach(
-      fixture => {
-        serverLog.onNext({
-          type: events.Type.Http,
-          status: 200,
-          data: fixture
-        });
-      }
-    );
-};
-
-export default (clientLog, serverLog) => {
-  clientLog.filter(e => { return e.type == events.Type.Http })
-    .subscribe(e => handle(e, serverLog));
-};
-
 const landingDataFixture = {
   "links":{
     "self": "http://hairpiece.com/api/users/3"

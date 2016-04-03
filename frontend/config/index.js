@@ -31,8 +31,9 @@ config.set('webpack_port',  process.env.PORT || 3000);
 config.set('vendor_dependencies', [
   'history',
   'freezer-js',
+  'kefir',
+  'history',
   'react',
-  'react-router',
   'react-bootstrap',
   'rx'
 ].filter(dep => {
