@@ -33,15 +33,20 @@ export const AppContainer = ({appData, effects}) => {
   if(appData.location && appData.location.pathname) {
     let match = {remainingPathname: null, paramNames: null};
     const pathname = appData.location.pathname;
-    match = _.find(patterns,
+    const pattern = _.find(patterns,
         p => matchPattern(p, pathname).remainingPathname != null);
 
-    switch (match) {
+    if (pattern) {
+      match = matchPattern(pattern, pathname);
+    }
+
+    switch (pattern) {
       case '/new_meeting/:subordinate_id':
         const props = _.zipObject(match.paramNames, match.paramValues);
         page = <NewMeeting newMeeting={appData.newMeeting}
                            effects={effects}
                            {...props} />;
+      break;
     }
   }
 
